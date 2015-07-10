@@ -38,11 +38,15 @@ function copyPosition(originCube, destinationCube) {
 	originCube.position.y = destinationCube.position.y;
 	originCube.position.z = destinationCube.position.z;
 }
-
+var grid;
 function makeFood() {
+	var geometrygrid = new THREE.BoxGeometry( size, size, size2, 40, 40 );
+	grid = new THREE.Mesh( geometrygrid, material );
 	food = new THREE.Mesh( geometry2, material2 );
 	scene.add(food);
-	food.position.set(Math.round(Math.random() * 400 - 200), Math.round(Math.random() * 400 - 200), Math.round(Math.random() * 400 - 200));
+	food.position.set((Math.round(Math.random() * 38 + 1) - 0.5) * size2 - (size / 2), (Math.round(Math.random() * 38 + 1) - 0.5) * size2 - (size / 2), (Math.round(Math.random() * 38 + 1) - 0.5) * size2 - (size / 2));
+	scene.add(grid);
+	grid.position.set(0, 0, food.position.z);
 }
 var head = snake[0];
 makeFood();
@@ -68,12 +72,17 @@ function render() {
 			init();
 		}
 
-		if(head.position.x === food.position.x && head.position.y === food.position.y && head.position.z === food.position.z) {
+		if(next.position.x === food.position.x && next.position.y === food.position.y && next.position.z === food.position.z) {
 			init();
 			scene.remove(food);
+			scene.remove(grid);
 			makeFood();
 		}
-		camera.position.z = next.position.z + 300;
+		copyPosition(camera, next);
+		camera.position.z += size2 * 20;
+		camera.position.x -= size2 * 15;
+		camera.position.y += size2 * 15;
+		camera.lookAt(next.position);
 		copyPosition(head, next);
 	}, 70);
 }
@@ -83,9 +92,9 @@ render();
 document.addEventListener("keydown", function(e){
 	var key = e.which;
 	if(key == "37" && d != "x+") d = "x-";
-	else if(key == "38" && d != "y-") d = "y+";
+	else if(key == "38" && d != "z+") d = "z-";
 	else if(key == "39" && d != "x-") d = "x+";
-	else if(key == "40" && d != "y+") d = "y-";
-	else if(key == "87" && d != "z+") d = "z-";
-	else if(key == "83" && d != "z-") d = "z+";
+	else if(key == "40" && d != "z-") d = "z+";
+	else if(key == "87" && d != "y-") d = "y+";
+	else if(key == "83" && d != "y+") d = "y-";
 });
