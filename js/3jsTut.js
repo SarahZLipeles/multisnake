@@ -20,12 +20,15 @@ var segmentSize = boxSize / numSegments;
 
 var snake = [];
 
-var geometry2 = new THREE.BoxGeometry( segmentSize, segmentSize, segmentSize );
-var material2 = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var snakeGeometry = new THREE.BoxGeometry( segmentSize, segmentSize, segmentSize );
+var snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+var foodMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
 var cube2;
 d = "x+";
 function init() {
-	 cube2 = new THREE.Mesh( geometry2, material2 );
+	 cube2 = new THREE.Mesh( snakeGeometry, snakeMaterial );
 	scene.add(cube2);
 	cube2.position.set(-1 * ((boxSize / 2) - segmentSize / 2), (boxSize / 2) - segmentSize / 2, (boxSize / 2) - segmentSize / 2);
 	camera.position.z = 500;
@@ -43,9 +46,9 @@ var grid;
 function makeFood() {
 	var geometrygrid = new THREE.BoxGeometry( boxSize, boxSize, segmentSize, numSegments, numSegments );
 	grid = new THREE.Mesh( geometrygrid, material );
-	food = new THREE.Mesh( geometry2, material2 );
+	food = new THREE.Mesh( snakeGeometry, foodMaterial );
 	scene.add(food);
-	food.position.set((Math.round(Math.random() * 38 + 1) - 0.5) * segmentSize - (boxSize / 2), (Math.round(Math.random() * 38 + 1) - 0.5) * segmentSize - (boxSize / 2), (Math.round(Math.random() * 38 + 1) - 0.5) * segmentSize - (boxSize / 2));
+	food.position.set((Math.floor(Math.random() * segmentSize)), (Math.floor(Math.random() * segmentSize)), (Math.floor(Math.random() * segmentSize)));
 	scene.add(grid);
 	grid.position.set(0, 0, food.position.z);
 }
@@ -58,8 +61,7 @@ function render() {
 		renderer.render( scene, camera );
 		if (snake.length >= 3) {
 			for(var c = snake.length - 1; c > 0 ; c--) {
-				copyPosition(snake[c], snake[c - 1]);
-			}
+				copyPosition(snake[c], snake[c - 1]); }
 		}
 
 		axis = d[0];
@@ -85,7 +87,7 @@ function render() {
 		camera.position.y += segmentSize * 15;
 		camera.lookAt(next.position);
 		copyPosition(head, next);
-	}, 70);
+	}, 33);
 }
 
 render();
