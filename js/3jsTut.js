@@ -34,8 +34,16 @@ function init() {
 	camera.position.z = 500;
 	snake.push(snakeBody);
 }
-
 init();
+var head = snake[0];
+
+function grow() {
+	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
+	scene.add(snakeBody);
+	copyPosition(snakeBody, head);
+	snake.push(snakeBody);
+}
+
 
 function copyPosition(originCube, destinationCube) { // copies destination cube's location onto origin cube
 	originCube.position.x = destinationCube.position.x;
@@ -52,7 +60,6 @@ function makeFood() {
 	scene.add(grid);
 	grid.position.set(0, 0, food.position.z);
 }
-var head = snake[0];
 makeFood();
 function render() { 
 	setTimeout(function() {
@@ -73,9 +80,9 @@ function render() {
 		}
 
 		if(next.position.x === food.position.x && next.position.y === food.position.y && next.position.z === food.position.z) {
-			init();
-			init();
-			init();
+			grow();
+			grow();
+			grow();
 			scene.remove(food);
 			scene.remove(grid);
 			makeFood();
