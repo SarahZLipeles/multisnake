@@ -2,7 +2,7 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 var renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setSize( window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 
 var boxSize = 100;
@@ -25,14 +25,14 @@ var snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 
 var foodMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 
-var cube2;
+var snakeBody;
 d = "x+";
 function init() {
-	 cube2 = new THREE.Mesh( snakeGeometry, snakeMaterial );
-	scene.add(cube2);
-	cube2.position.set(-1 * ((boxSize / 2) - segmentSize / 2), (boxSize / 2) - segmentSize / 2, (boxSize / 2) - segmentSize / 2);
+	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
+	scene.add(snakeBody);
+	snakeBody.position.set(0,0,0);
 	camera.position.z = 500;
-	snake.push(cube2);
+	snake.push(snakeBody);
 }
 
 init();
@@ -48,7 +48,7 @@ function makeFood() {
 	grid = new THREE.Mesh( geometrygrid, material );
 	food = new THREE.Mesh( snakeGeometry, foodMaterial );
 	scene.add(food);
-	food.position.set((Math.floor(Math.random() * segmentSize)), (Math.floor(Math.random() * segmentSize)), (Math.floor(Math.random() * segmentSize)));
+	food.position.set((Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2));
 	scene.add(grid);
 	grid.position.set(0, 0, food.position.z);
 }
@@ -59,10 +59,10 @@ function render() {
 		var next = {position: new THREE.Vector3(0,0,0)};
 		requestAnimationFrame( render );
 		renderer.render( scene, camera );
-		if (snake.length >= 3) {
+		// if (snake.length >= 3) {
 			for(var c = snake.length - 1; c > 0 ; c--) {
 				copyPosition(snake[c], snake[c - 1]); }
-		}
+		// }
 
 		axis = d[0];
 		copyPosition(next, head);
@@ -71,11 +71,10 @@ function render() {
 		} else {
 			next.position[axis] = snake[0].position[axis] - segmentSize;
 		}
-		if (snake.length < 20) {
-			init();
-		}
 
 		if(next.position.x === food.position.x && next.position.y === food.position.y && next.position.z === food.position.z) {
+			init();
+			init();
 			init();
 			scene.remove(food);
 			scene.remove(grid);
@@ -87,7 +86,7 @@ function render() {
 		camera.position.y += segmentSize * 15;
 		camera.lookAt(next.position);
 		copyPosition(head, next);
-	}, 33);
+	}, 66);
 }
 
 render();
