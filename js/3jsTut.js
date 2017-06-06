@@ -1,31 +1,31 @@
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-var renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 
-var boxSize = 100;
-var numSegments = 100;
-var d = "x+";
+const boxSize = 100;
+const numSegments = 100;
+let d = "x+";
 
-var geometry = new THREE.BoxGeometry( boxSize, boxSize, boxSize, numSegments, numSegments, numSegments );
-var material = new THREE.MeshBasicMaterial( { wireframe: true } );
-var cube = new THREE.Mesh( geometry, material );
-// var box = new THREE.BoxHelper( cube );
+const geometry = new THREE.BoxGeometry( boxSize, boxSize, boxSize, numSegments, numSegments, numSegments );
+const material = new THREE.MeshBasicMaterial( { wireframe: true } );
+const cube = new THREE.Mesh( geometry, material );
+// const box = new THREE.BoxHelper( cube );
 
 scene.add(cube);
 
-var segmentSize = boxSize / numSegments;
+const segmentSize = boxSize / numSegments;
 
-var snake = [];
+const snake = [];
 
-var snakeGeometry = new THREE.BoxGeometry( segmentSize, segmentSize, segmentSize );
-var snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+const snakeGeometry = new THREE.BoxGeometry( segmentSize, segmentSize, segmentSize );
+const snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 
-var foodMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const foodMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 
-var snakeBody;
+let snakeBody;
 d = "x+";
 function init() {
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
@@ -35,7 +35,7 @@ function init() {
 	snake.push(snakeBody);
 }
 init();
-var head = snake[0];
+const head = snake[0];
 
 function grow() {
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
@@ -50,9 +50,9 @@ function copyPosition(originCube, destinationCube) { // copies destination cube'
 	originCube.position.y = destinationCube.position.y;
 	originCube.position.z = destinationCube.position.z;
 }
-var grid;
+let grid;
 function makeFood() {
-	var geometrygrid = new THREE.BoxGeometry( boxSize, boxSize, segmentSize, numSegments, numSegments );
+	const geometrygrid = new THREE.BoxGeometry( boxSize, boxSize, segmentSize, numSegments, numSegments );
 	grid = new THREE.Mesh( geometrygrid, material );
 	food = new THREE.Mesh( snakeGeometry, foodMaterial );
 	scene.add(food);
@@ -61,13 +61,13 @@ function makeFood() {
 	grid.position.set(0, 0, food.position.z);
 }
 makeFood();
-function render() { 
+function render() {
 	setTimeout(function() {
-		var next = {position: new THREE.Vector3(0,0,0)};
+		const next = {position: new THREE.Vector3(0,0,0)};
 		requestAnimationFrame( render );
 		renderer.render( scene, camera );
 		// if (snake.length >= 3) {
-			for(var c = snake.length - 1; c > 0 ; c--) {
+			for(const c = snake.length - 1; c > 0 ; c--) {
 				copyPosition(snake[c], snake[c - 1]); }
 		// }
 
@@ -99,7 +99,7 @@ function render() {
 render();
 
 document.addEventListener("keydown", function(e){
-	var key = e.which;
+	const key = e.which;
 	if(key == "37" && d != "x+") d = "x-";
 	else if(key == "38" && d != "z+") d = "z-";
 	else if(key == "39" && d != "x-") d = "x+";
