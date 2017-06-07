@@ -3,16 +3,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
-
-
-
-var light = new THREE.PointLight( 0x00ffff, 1, 200 );
-light.position.set( -100, -100, -100 );
-light.castShadow = true;
-scene.add( light );
-
 
 // Size constants
 //----------------------------------------
@@ -58,7 +49,6 @@ let snakeBody;
 function init() {
 	snake = [];
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
-	snakeBody.recieveShadow = true;
 	scene.add(snakeBody);
 	snakeBody.position.set(0,0,0);
 	camera.position.z = 500;
@@ -71,8 +61,6 @@ const head = snake[0];
 
 function grow() {
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
-	snakeBody.recieveShadow = true;
-	snakeBody.castShadow = true;
 	scene.add(snakeBody);
 	copyPosition(snakeBody, head);
 	snake.push(snakeBody);
@@ -89,8 +77,6 @@ function makeFood() {
 	const gridGeometry = new THREE.BoxGeometry( boxSize, boxSize, segmentSize, numSegments, numSegments );
 	grid = new THREE.Mesh( gridGeometry, playAreaMaterial );
 	food = new THREE.Mesh( foodGeometry, foodMaterial );
-	food.recieveShadow = true;
-	food.castShadow = true;
 	scene.add(food);
 	food.position.set((Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2));
 	// scene.add(grid);
