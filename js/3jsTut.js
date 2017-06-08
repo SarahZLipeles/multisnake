@@ -24,40 +24,77 @@ const playAreaGeometry = new THREE.BoxGeometry(
 	boxSize, boxSize, boxSize, numSegments, numSegments, numSegments
 );
 const foodGeometry = new THREE.OctahedronGeometry(segmentSize);
+const wallGeometry = new THREE.PlaneGeometry(boxSize, boxSize, segmentSize, segmentSize);
 //--------------------------------------------------------------------------
 
 //Materials
 //--------------------------------------------------------------------------
 const snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const playAreaMaterial = new THREE.MeshBasicMaterial( { wireframe: true } );
-const foodMaterial = new THREE.MeshBasicMaterial( { color: 0xffb6c1 } );
+const playAreaMaterial = new THREE.MeshNormalMaterial( { wireframe: true } );
+const foodMaterial = new THREE.MeshNormalMaterial( );
+const zNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0x90C3D4} );
+const zPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xD4A190} );
+const xPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xC390D4} );
+const xNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0xA1D490} );
+const yNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0xCED490} );
+const yPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xCED490} );
 //--------------------------------------------------------------------------
 
 
 // Play area cube creation
 //--------------------------------------------------------------------------
-const playArea = new THREE.Mesh( playAreaGeometry, playAreaMaterial );
-scene.add(playArea);
+// const playArea = new THREE.Mesh( playAreaGeometry, playAreaMaterial );
+// scene.add(playArea);
+const zNegWall = new THREE.Mesh( wallGeometry, zNegWallMaterial);
+const zPosWall = new THREE.Mesh( wallGeometry, zPosWallMaterial);
+const xPosWall = new THREE.Mesh( wallGeometry, xPosWallMaterial);
+const xNegWall = new THREE.Mesh( wallGeometry, xNegWallMaterial);
+const yNegWall = new THREE.Mesh( wallGeometry, yNegWallMaterial);
+const yPosWall = new THREE.Mesh( wallGeometry, yPosWallMaterial);
+scene.add(zNegWall);
+scene.add(zPosWall);
+scene.add(xPosWall);
+scene.add(xNegWall);
+scene.add(yNegWall);
+scene.add(yPosWall);
+zNegWall.position.set(0, 0, -(boxSize / 2));
+zPosWall.position.set(0, 0, (boxSize / 2));
+zPosWall.rotation.y = (Math.PI);
+xPosWall.position.set(boxSize / 2, 0, 0);
+xPosWall.rotation.y = -(Math.PI / 2);
+xNegWall.position.set(-(boxSize / 2), 0, 0);
+xNegWall.rotation.y = (Math.PI / 2);
+yNegWall.position.set(0, -(boxSize / 2), 0);
+yNegWall.rotation.x = -(Math.PI / 2);
+yPosWall.position.set(0, (boxSize / 2), 0);
+yPosWall.rotation.x = (Math.PI / 2);
 //--------------------------------------------------------------------------
 
 
-let snakeBody;
-
+let snakeBody, head, next, food;
 
 // Initializes the snake
 //-------------------------------------------------------------
 function init() {
-	snake = [];
+	if (snake.length > 0) {
+		scene.remove(food);
+		makeFood();
+	}
+	while (snake.length > 0) {
+		scene.remove(snake.pop());
+	}
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
 	scene.add(snakeBody);
 	snakeBody.position.set(0,0,0);
-	camera.position.z = 500;
+	camera.position.set(0, 0, 0);
 	snake.push(snakeBody);
+	head = snake[0];
+	next = {position: new THREE.Vector3(0, 0, 0)};
 }
 //-------------------------------------------------------------
 
 init();
-const head = snake[0];
+head = snake[0];
 
 function grow() {
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
@@ -74,22 +111,50 @@ function copyPosition(originCube, destinationCube) { // copies destination cube'
 }
 let grid;
 function makeFood() {
-	const gridGeometry = new THREE.BoxGeometry( boxSize, boxSize, segmentSize, numSegments, numSegments );
-	grid = new THREE.Mesh( gridGeometry, playAreaMaterial );
 	food = new THREE.Mesh( foodGeometry, foodMaterial );
 	scene.add(food);
 	food.position.set((Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2));
-	// scene.add(grid);
-	// grid.position.set(0, 0, food.position.z);
 }
 makeFood();
+
+// Collision checker
+//--------------------------------------------------------------------------
+function checkCollisions(next) {
+	if (Math.abs(next.position.x) > (boxSize / 2) ||
+	Math.abs(next.position.y) > (boxSize / 2) ||
+	Math.abs(next.position.z) > (boxSize / 2)) {
+		init();
+	} else {
+		for (var i = 0; i < snake.length; i++) {
+			if (next.position.x === snake[i].position.x &&
+		next.position.y === snake[i].position.y &&
+		next.position.z === snake[i].position.z)
+				init();
+		}
+		if (next.position.x === food.position.x &&
+		next.position.y === food.position.y &&
+		next.position.z === food.position.z) {
+			grow();
+			grow();
+			grow();
+			scene.remove(food);
+			scene.remove(grid);
+			makeFood();
+		}
+	}
+}
+//--------------------------------------------------------------------------
+
+
+// Render Loop
+//--------------------------------------------------------------------------
 function render() {
 	setTimeout(function() {
-		const next = {position: new THREE.Vector3(0,0,0)};
+		next = {position: new THREE.Vector3(0, 0, 0)};
 		requestAnimationFrame( render );
 		renderer.render( scene, camera );
 		// if (snake.length >= 3) {
-			for(let c = snake.length - 1; c > 0 ; c--) {
+			for (let c = snake.length - 1; c > 0 ; c--) {
 				copyPosition(snake[c], snake[c - 1]); }
 		// }
 
@@ -101,31 +166,72 @@ function render() {
 			next.position[axis] = snake[0].position[axis] - segmentSize;
 		}
 
-		if(next.position.x === food.position.x && next.position.y === food.position.y && next.position.z === food.position.z) {
-			grow();
-			grow();
-			grow();
-			scene.remove(food);
-			scene.remove(grid);
-			makeFood();
-		}
+		// if(next.position.x === food.position.x &&
+		// next.position.y === food.position.y &&
+		// next.position.z === food.position.z) {
+		// 	grow();
+		// 	grow();
+		// 	grow();
+		// 	scene.remove(food);
+		// 	scene.remove(grid);
+		// 	makeFood();
+		// }
+		checkCollisions(next);
+		// External Cam
+		//---------------------------------------
 		copyPosition(camera, next);
-		camera.position.z += segmentSize * 20;
-		camera.position.x -= segmentSize * 15;
-		camera.position.y += segmentSize * 15;
+		camera.position.z += segmentSize * 15;
+		camera.position.x -= segmentSize * 10;
+		camera.position.y += segmentSize * 10;
 		camera.lookAt(next.position);
+		//---------------------------------------
+		// Snake Cam
+		//---------------------------------------
+		// camera.lookAt(next.position);
+		// copyPosition(camera, next);
+		//---------------------------------------
+		// Steady Cam
+		//---------------------------------------
+		// camera.lookAt(next.position);
+		//---------------------------------------
+
 		copyPosition(head, next);
 	}, 66);
 }
+//--------------------------------------------------------------------------
 
 render();
 
+// Directional Key Listeners
+//--------------------------------------------------------------------------
 document.addEventListener("keydown", function(e){
 	const key = e.which;
-	if(key == "37" && direction != "x+") direction = "x-";
-	else if(key == "38" && direction != "z+") direction = "z-";
-	else if(key == "39" && direction != "x-") direction = "x+";
-	else if(key == "40" && direction != "z-") direction = "z+";
-	else if(key == "87" && direction != "y-") direction = "y+";
-	else if(key == "83" && direction != "y+") direction = "y-";
+	if (key == "37" && direction !== "x+") direction = "x-";
+	else if (key == "38" && direction !== "z+") direction = "z-";
+	else if (key == "39" && direction !== "x-") direction = "x+";
+	else if (key == "40" && direction !== "z-") direction = "z+";
+	else if (key == "87" && direction !== "y-") direction = "y+";
+	else if (key == "83" && direction !== "y+") direction = "y-";
 });
+//--------------------------------------------------------------------------
+
+// Perspectice Directional Key Listeners unfinished
+//--------------------------------------------------------------------------
+// document.addEventListener("keydown", function(e){
+// 	const key = e.which;
+// 	if ( key == "37" ) { // left arrow
+// 			if (direction[0] === "x") {
+// 				direction = "z" + ((direction[1] === "+") ? ("-") : ("+"));
+// 			} else if (direction[0] === "y") {
+// 				direction = "z" + ((direction[1] === "+") ? ("-") : ("+"));)
+// 		}
+// 	}
+
+// 	if (key == "37" && direction !== "x+") direction = "x-";
+// 	else if (key == "38" && direction !== "z+") direction = "z-";
+// 	else if (key == "39" && direction !== "x-") direction = "x+";
+// 	else if (key == "40" && direction !== "z-") direction = "z+";
+// 	else if (key == "87" && direction !== "y-") direction = "y+";
+// 	else if (key == "83" && direction !== "y+") direction = "y-";
+// });
+//--------------------------------------------------------------------------
