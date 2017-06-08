@@ -5,6 +5,7 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight);
 document.body.appendChild( renderer.domElement );
 
+
 // Size constants
 //----------------------------------------
 const boxSize = 100;
@@ -14,6 +15,26 @@ const segmentSize = boxSize / numSegments;
 
 let direction = "x+"; // Format axis (x,y,z) direction (+, -)
 let snake = [];
+
+
+// Lighting
+//--------------------------------------------------------------------------
+const lights = [];
+for (let i = 0; i < 8; i++) {
+	lights.push(new THREE.PointLight( 0xffffff, 1, boxSize * 1.5 ))
+}
+lights[0].position.set( -(boxSize / 2), -(boxSize / 2), -(boxSize / 2) );
+lights[1].position.set( -(boxSize / 2), -(boxSize / 2), (boxSize / 2) );
+lights[2].position.set( -(boxSize / 2), (boxSize / 2), -(boxSize / 2) );
+lights[3].position.set( -(boxSize / 2), (boxSize / 2), (boxSize / 2) );
+lights[4].position.set( (boxSize / 2), -(boxSize / 2), -(boxSize / 2) );
+lights[5].position.set( (boxSize / 2), -(boxSize / 2), (boxSize / 2) );
+lights[6].position.set( (boxSize / 2), (boxSize / 2), -(boxSize / 2) );
+lights[7].position.set( (boxSize / 2), (boxSize / 2), (boxSize / 2) );
+for (let i = 0; i < 8; i++) {
+	scene.add(lights[i]);
+}
+//--------------------------------------------------------------------------
 
 // Geometries
 //--------------------------------------------------------------------------
@@ -29,15 +50,14 @@ const wallGeometry = new THREE.PlaneGeometry(boxSize, boxSize, segmentSize, segm
 
 //Materials
 //--------------------------------------------------------------------------
-const snakeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const playAreaMaterial = new THREE.MeshNormalMaterial( { wireframe: true } );
-const foodMaterial = new THREE.MeshNormalMaterial( );
-const zNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0x90C3D4} );
-const zPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xD4A190} );
-const xPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xC390D4} );
-const xNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0xA1D490} );
-const yNegWallMaterial = new THREE.MeshBasicMaterial( {color: 0xCED490} );
-const yPosWallMaterial = new THREE.MeshBasicMaterial( {color: 0xCED490} );
+const snakeMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+const foodMaterial = new THREE.MeshPhongMaterial( {color: 0xFF4D4D} );
+const zNegWallMaterial = new THREE.MeshPhongMaterial( {color: 0x90C3D4} );
+const zPosWallMaterial = new THREE.MeshPhongMaterial( {color: 0xD4A190} );
+const xPosWallMaterial = new THREE.MeshPhongMaterial( {color: 0xC390D4} );
+const xNegWallMaterial = new THREE.MeshPhongMaterial( {color: 0xA1D490} );
+const yNegWallMaterial = new THREE.MeshPhongMaterial( {color: 0xCED490} );
+const yPosWallMaterial = new THREE.MeshPhongMaterial( {color: 0xCED490} );
 //--------------------------------------------------------------------------
 
 
@@ -96,25 +116,41 @@ function init() {
 init();
 head = snake[0];
 
+//-------------------------------------------------------------
 function grow() {
 	snakeBody = new THREE.Mesh( snakeGeometry, snakeMaterial );
 	scene.add(snakeBody);
 	copyPosition(snakeBody, head);
 	snake.push(snakeBody);
 }
+//-------------------------------------------------------------
 
-
+//--------------------------------------------------------------------------
 function copyPosition(originCube, destinationCube) { // copies destination cube's location onto origin cube
 	originCube.position.x = destinationCube.position.x;
 	originCube.position.y = destinationCube.position.y;
 	originCube.position.z = destinationCube.position.z;
 }
+//--------------------------------------------------------------------------
+
+
+
+
 let grid;
+
+//--------------------------------------------------------------------------
 function makeFood() {
 	food = new THREE.Mesh( foodGeometry, foodMaterial );
 	scene.add(food);
 	food.position.set((Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2), (Math.floor(Math.random() * boxSize) - boxSize/2));
 }
+//--------------------------------------------------------------------------
+
+function rotateFood(speed) {
+    food.rotation.y -= speed;
+}
+
+
 makeFood();
 
 // Collision checker
@@ -150,14 +186,14 @@ function checkCollisions(next) {
 //--------------------------------------------------------------------------
 function render() {
 	setTimeout(function() {
+
 		next = {position: new THREE.Vector3(0, 0, 0)};
 		requestAnimationFrame( render );
 		renderer.render( scene, camera );
-		// if (snake.length >= 3) {
-			for (let c = snake.length - 1; c > 0 ; c--) {
-				copyPosition(snake[c], snake[c - 1]); }
-		// }
+		for (let c = snake.length - 1; c > 0 ; c--) {
+			copyPosition(snake[c], snake[c - 1]); }
 
+		rotateFood(0.1);
 		axis = direction[0];
 		copyPosition(next, head);
 		if (direction[1] === "+") {
@@ -166,16 +202,6 @@ function render() {
 			next.position[axis] = snake[0].position[axis] - segmentSize;
 		}
 
-		// if(next.position.x === food.position.x &&
-		// next.position.y === food.position.y &&
-		// next.position.z === food.position.z) {
-		// 	grow();
-		// 	grow();
-		// 	grow();
-		// 	scene.remove(food);
-		// 	scene.remove(grid);
-		// 	makeFood();
-		// }
 		checkCollisions(next);
 		// External Cam
 		//---------------------------------------
