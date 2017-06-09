@@ -54,21 +54,37 @@ const wallGeometry = new THREE.PlaneGeometry(boxSize, boxSize, segmentSize, segm
 
 //Materials
 //--------------------------------------------------------------------------
-const snakeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 100 });
-const foodMaterial = new THREE.MeshPhongMaterial({ color: 0xFF4D4D, shininess: 100 });
-const zNegWallMaterial = new THREE.MeshPhongMaterial({ color: 0x90C3D4 });
-const zPosWallMaterial = new THREE.MeshPhongMaterial({ color: 0xD4A190 });
-const xPosWallMaterial = new THREE.MeshPhongMaterial({ color: 0xC390D4 });
-const xNegWallMaterial = new THREE.MeshPhongMaterial({ color: 0xA1D490 });
-const yNegWallMaterial = new THREE.MeshPhongMaterial({ color: 0xCED490 });
-const yPosWallMaterial = new THREE.MeshPhongMaterial({ color: 0xCED490 });
+const snakeMaterial = new THREE.MeshPhongMaterial({
+	color: 0x00ff00,
+	shininess: 100
+});
+const foodMaterial = new THREE.MeshPhongMaterial({
+	color: 0xFF4D4D,
+	shininess: 100
+});
+const zNegWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0x90C3D4
+});
+const zPosWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0xD4A190
+});
+const xPosWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0xC390D4
+});
+const xNegWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0xA1D490
+});
+const yNegWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0xCED490
+});
+const yPosWallMaterial = new THREE.MeshPhongMaterial({
+	color: 0xCED490
+});
 //--------------------------------------------------------------------------
 
 
 // Play area cube creation
 //--------------------------------------------------------------------------
-// const playArea = new THREE.Mesh( playAreaGeometry, playAreaMaterial );
-// scene.add(playArea);
 const zNegWall = new THREE.Mesh(wallGeometry, zNegWallMaterial);
 const zPosWall = new THREE.Mesh(wallGeometry, zPosWallMaterial);
 const xPosWall = new THREE.Mesh(wallGeometry, xPosWallMaterial);
@@ -113,7 +129,9 @@ function init() {
 	camera.position.set(0, 0, 0);
 	snake.push(snakeBody);
 	head = snake[0];
-	next = { position: new THREE.Vector3(0, 0, 0) };
+	next = {
+		position: new THREE.Vector3(0, 0, 0)
+	};
 }
 //-------------------------------------------------------------
 
@@ -166,7 +184,9 @@ function checkCollisions(next) {
 		for (var i = 0; i < snake.length; i++) {
 			if (next.position.x === snake[i].position.x &&
 				next.position.y === snake[i].position.y &&
-				next.position.z === snake[i].position.z) { init(); }
+				next.position.z === snake[i].position.z) {
+				init();
+			}
 		}
 		if (next.position.x === food.position.x &&
 			next.position.y === food.position.y &&
@@ -188,7 +208,9 @@ function checkCollisions(next) {
 function render() {
 	setTimeout(function () {
 
-		next = { position: new THREE.Vector3(0, 0, 0) };
+		next = {
+			position: new THREE.Vector3(0, 0, 0)
+		};
 		requestAnimationFrame(render);
 		renderer.render(scene, camera);
 		for (let c = snake.length - 1; c > 0; c--) {
@@ -241,25 +263,4 @@ document.addEventListener('keydown', function (event) {
 	else if (key == '87' && direction !== 'y-') direction = 'y+';
 	else if (key == '83' && direction !== 'y+') direction = 'y-';
 });
-//--------------------------------------------------------------------------
-
-// Perspectice Directional Key Listeners unfinished
-//--------------------------------------------------------------------------
-// document.addEventListener("keydown", function(e){
-// 	const key = e.which;
-// 	if ( key == "37" ) { // left arrow
-// 			if (direction[0] === "x") {
-// 				direction = "z" + ((direction[1] === "+") ? ("-") : ("+"));
-// 			} else if (direction[0] === "y") {
-// 				direction = "z" + ((direction[1] === "+") ? ("-") : ("+"));)
-// 		}
-// 	}
-
-// 	if (key == "37" && direction !== "x+") direction = "x-";
-// 	else if (key == "38" && direction !== "z+") direction = "z-";
-// 	else if (key == "39" && direction !== "x-") direction = "x+";
-// 	else if (key == "40" && direction !== "z-") direction = "z+";
-// 	else if (key == "87" && direction !== "y-") direction = "y+";
-// 	else if (key == "83" && direction !== "y+") direction = "y-";
-// });
 //--------------------------------------------------------------------------
