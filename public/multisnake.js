@@ -234,12 +234,12 @@ render();
 //--------------------------------------------------------------------------
 document.addEventListener('keydown', function (event) {
 	const key = event.which;
-	if (key === '37' && direction !== 'x+') direction = 'x-';
-	else if (key === '38' && direction !== 'z+') direction = 'z-';
-	else if (key === '39' && direction !== 'x-') direction = 'x+';
-	else if (key === '40' && direction !== 'z-') direction = 'z+';
-	else if (key === '87' && direction !== 'y-') direction = 'y+';
-	else if (key === '83' && direction !== 'y+') direction = 'y-';
+	if (key == '37' && direction !== 'x+') direction = 'x-';
+	else if (key == '38' && direction !== 'z+') direction = 'z-';
+	else if (key == '39' && direction !== 'x-') direction = 'x+';
+	else if (key == '40' && direction !== 'z-') direction = 'z+';
+	else if (key == '87' && direction !== 'y-') direction = 'y+';
+	else if (key == '83' && direction !== 'y+') direction = 'y-';
 });
 //--------------------------------------------------------------------------
 
