@@ -20,7 +20,6 @@
   "homepage": "https://github.com/TheoLipeles/multisnake#readme",
   "dependencies": {
     "express": "^4.15.3",
-    "socket.io": "^2.0.2",
-    "three": "^0.85.2"
+    "socket.io": "^2.0.2"
   }
 }
