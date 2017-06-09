@@ -21,8 +21,9 @@ let snake = [];
 //--------------------------------------------------------------------------
 const lights = [];
 for (let i = 0; i < 8; i++) {
-	lights.push(new THREE.PointLight( 0xffffff, 1, boxSize * 1.5 ))
+	lights.push(new THREE.PointLight( 0xffffff, 0.4, boxSize * 2 ))
 }
+lights.push(new THREE.AmbientLight( 0x404040 ));
 lights[0].position.set( -(boxSize / 2), -(boxSize / 2), -(boxSize / 2) );
 lights[1].position.set( -(boxSize / 2), -(boxSize / 2), (boxSize / 2) );
 lights[2].position.set( -(boxSize / 2), (boxSize / 2), -(boxSize / 2) );
@@ -31,7 +32,7 @@ lights[4].position.set( (boxSize / 2), -(boxSize / 2), -(boxSize / 2) );
 lights[5].position.set( (boxSize / 2), -(boxSize / 2), (boxSize / 2) );
 lights[6].position.set( (boxSize / 2), (boxSize / 2), -(boxSize / 2) );
 lights[7].position.set( (boxSize / 2), (boxSize / 2), (boxSize / 2) );
-for (let i = 0; i < 8; i++) {
+for (let i = 0; i < lights.length; i++) {
 	scene.add(lights[i]);
 }
 //--------------------------------------------------------------------------
@@ -50,8 +51,8 @@ const wallGeometry = new THREE.PlaneGeometry(boxSize, boxSize, segmentSize, segm
 
 //Materials
 //--------------------------------------------------------------------------
-const snakeMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-const foodMaterial = new THREE.MeshPhongMaterial( {color: 0xFF4D4D} );
+const snakeMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00, shininess: 100 } );
+const foodMaterial = new THREE.MeshPhongMaterial( { color: 0xFF4D4D, shininess: 100} );
 const zNegWallMaterial = new THREE.MeshPhongMaterial( {color: 0x90C3D4} );
 const zPosWallMaterial = new THREE.MeshPhongMaterial( {color: 0xD4A190} );
 const xPosWallMaterial = new THREE.MeshPhongMaterial( {color: 0xC390D4} );
