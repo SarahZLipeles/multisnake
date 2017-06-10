@@ -17,8 +17,8 @@ const segmentSize = boxSize / numSegments;
 //----------------------------------------
 
 let direction = "x+"; // Format axis (x,y,z) direction (+, -)
-let snake = [];
-let snakes = {};
+let snake = []; // Array of snake segments
+let snakes = {}; // Other players, Format socketid: snake
 
 
 // Lighting
