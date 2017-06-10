@@ -1,6 +1,6 @@
 /* global THREE io */
 
-const socket = io()
+const socket = io();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -16,15 +16,16 @@ const numSegments = 100;
 const segmentSize = boxSize / numSegments;
 //----------------------------------------
 
-let direction = 'x+'; // Format axis (x,y,z) direction (+, -)
+let direction = "x+"; // Format axis (x,y,z) direction (+, -)
 let snake = [];
+let snakes = {};
 
 
 // Lighting
 //--------------------------------------------------------------------------
 const lights = [];
 for (let i = 0; i < 8; i++) {
-	lights.push(new THREE.PointLight(0xffffff, 0.4, boxSize * 2))
+	lights.push(new THREE.PointLight(0xffffff, 0.4, boxSize * 2));
 }
 lights.push(new THREE.AmbientLight(0x404040));
 lights[0].position.set(-(boxSize / 2), -(boxSize / 2), -(boxSize / 2));
@@ -120,9 +121,7 @@ function init() {
 		scene.remove(food);
 		makeFood();
 	}
-	while (snake.length > 0) {
-		scene.remove(snake.pop());
-	}
+	deleteSnake(snake);
 	snakeBody = new THREE.Mesh(snakeGeometry, snakeMaterial);
 	scene.add(snakeBody);
 	snakeBody.position.set(0, 0, 0);
@@ -181,7 +180,7 @@ function checkCollisions(next) {
 		Math.abs(next.position.z) > (boxSize / 2)) {
 		init();
 	} else {
-		for (var i = 0; i < snake.length; i++) {
+		for (let i = 0; i < snake.length; i++) {
 			if (next.position.x === snake[i].position.x &&
 				next.position.y === snake[i].position.y &&
 				next.position.z === snake[i].position.z) {
@@ -199,6 +198,66 @@ function checkCollisions(next) {
 			makeFood();
 		}
 	}
+	for (let key in snakes) {
+		for (let i = 0; i < snakes[key].length; i++) {
+			if (next.position.x === snakes[key][i].position.x &&
+				next.position.y === snakes[key][i].position.y &&
+				next.position.z === snakes[key][i].position.z) {
+				init();
+			}
+		}
+	}
+}
+//--------------------------------------------------------------------------
+
+// Delete Snake
+//--------------------------------------------------------------------------
+function deleteSnake(oldSnake) {
+	while (oldSnake.length > 0) {
+		scene.remove(oldSnake.pop());
+	}
+}
+//--------------------------------------------------------------------------
+
+// Snake updater
+//--------------------------------------------------------------------------
+function updateSnake(id, newSnake) {
+	deleteSnake(snakes[id]);
+	snakes[id] = newSnake;
+	for (var i = 0; i < newSnake.length; i++) {
+		scene.add(newSnake[i]);
+	}
+}
+//--------------------------------------------------------------------------
+
+// Snake to light snake
+//--------------------------------------------------------------------------
+function snakeToLightSnake(snake) {
+	const lSnake = [];
+	for (var i = 0; i < snake.length; i++) {
+		var snakeSeg = snake[i];
+		lSnake[i] = {};
+		lSnake[i].x = snakeSeg.position.x;
+		lSnake[i].y = snakeSeg.position.y;
+		lSnake[i].z = snakeSeg.position.z;
+
+	}
+	return lSnake;
+}
+//--------------------------------------------------------------------------
+
+// Light snake to snake
+//--------------------------------------------------------------------------
+function lightSnakeToSnake(lSnake) {
+	const retSnake = [];
+	for (var i = 0; i < lSnake.length; i++) {
+		var snakeSeg = lSnake[i];
+		retSnake[i] = new THREE.Mesh(snakeGeometry, snakeMaterial);
+		retSnake[i].position.x = snakeSeg.x;
+		retSnake[i].position.y = snakeSeg.y;
+		retSnake[i].position.z = snakeSeg.z;
+	}
+	return retSnake;
 }
 //--------------------------------------------------------------------------
 
@@ -220,7 +279,7 @@ function render() {
 		rotateFood(0.1);
 		axis = direction[0];
 		copyPosition(next, head);
-		if (direction[1] === '+') {
+		if (direction[1] === "+") {
 			next.position[axis] = snake[0].position[axis] + segmentSize;
 		} else {
 			next.position[axis] = snake[0].position[axis] - segmentSize;
@@ -246,21 +305,33 @@ function render() {
 		//---------------------------------------
 
 		copyPosition(head, next);
+		socket.emit("move", snakeToLightSnake(snake));
 	}, 66);
 }
 //--------------------------------------------------------------------------
 
 render();
 
+socket.on("connection", (id) => {snakes[id] = [];});
+socket.on("disconnect", (id) => {deleteSnake(snakes[id]); snakes.delete(id);});
+
+socket.on("move", function (id, newSnake) {
+	if (!snakes[id]) {
+		snakes[id] = [];
+	}
+	updateSnake(id, lightSnakeToSnake(newSnake));
+});
+
+
 // Directional Key Listeners
 //--------------------------------------------------------------------------
-document.addEventListener('keydown', function (event) {
+document.addEventListener("keydown", function (event) {
 	const key = event.which;
-	if (key == '37' && direction !== 'x+') direction = 'x-';
-	else if (key == '38' && direction !== 'z+') direction = 'z-';
-	else if (key == '39' && direction !== 'x-') direction = 'x+';
-	else if (key == '40' && direction !== 'z-') direction = 'z+';
-	else if (key == '87' && direction !== 'y-') direction = 'y+';
-	else if (key == '83' && direction !== 'y+') direction = 'y-';
+	if (key == "37" && direction !== "x+") direction = "x-";
+	else if (key == "38" && direction !== "z+") direction = "z-";
+	else if (key == "39" && direction !== "x-") direction = "x+";
+	else if (key == "40" && direction !== "z-") direction = "z+";
+	else if (key == "87" && direction !== "y-") direction = "y+";
+	else if (key == "83" && direction !== "y+") direction = "y-";
 });
 //--------------------------------------------------------------------------
