@@ -5,7 +5,7 @@ const socketFunction = function (io) {
     socket.broadcast.emit("connection", socket.id);
 
     socket.on("disconnect", function () {
-      console.log(socket.id, "disconnected");
+      socket.broadcast.emit("disconnect", socket.id);
     });
 
     socket.on("move", function (snake) {
