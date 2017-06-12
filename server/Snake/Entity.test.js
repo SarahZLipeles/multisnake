@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 const Entity = require('./Entity')
 
-/* global describe it before afterEach beforeEach expect */
+/* global describe it beforeEach */
 
 describe('Entity', () => {
   const position = [5, 10, 15]
@@ -12,13 +12,16 @@ describe('Entity', () => {
   })
 
   it('has x, y, and z properties', () => {
-    expect(testEntity).to.have.all.keys('x', 'y', 'z')
+    expect(testEntity).to.have.keys('x', 'y', 'z')
   })
 
   it('has correct property values', () => {
-    expect(testEntity.x).to.equal(position[0])
-    expect(testEntity.y).to.equal(position[1])
-    expect(testEntity.z).to.equal(position[2])
+    expect(testEntity).to.include({ x: position[0], y: position[1], z: position[2] })
+  })
+
+  it('has default property values of 0', () => {
+    const newEntity = new Entity()
+    expect(newEntity).to.include({ x: 0, y: 0, z: 0 })
   })
 
   it('copies position of another entity', () => {

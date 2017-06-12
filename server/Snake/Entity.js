@@ -1,5 +1,5 @@
 module.exports = class Entity {
-    constructor(x, y, z) {
+    constructor(x = 0, y = 0, z = 0) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -16,4 +16,3 @@ module.exports = class Entity {
         return this.x === entity.x && this.y === entity.y && this.z === entity.z;
     }
 };
-
