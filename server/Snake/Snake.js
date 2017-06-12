@@ -14,10 +14,11 @@ class Snake {
 
     move() {
         let currSegment = this.head;
-        const tmpEnt = new Entity();
-        // while (condition) {
-
-        // }
+        const tmpCoords = new Entity();
+        while (currSegment.next) {
+            tmpCoords.copyPosition(currSegment);
+            currSegment = currSegment.next.copyPosition(tmpCoords);
+        }
     }
 }
 
