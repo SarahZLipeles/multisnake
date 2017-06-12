@@ -13,7 +13,7 @@ module.exports = class Entity {
     }
 
     coincides(entity) {
-        return this.x === entity.x && this.y == entity.y && this.x === entity.x;
+        return this.x === entity.x && this.y === entity.y && this.z === entity.z;
     }
 };
 

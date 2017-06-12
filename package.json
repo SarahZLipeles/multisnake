@@ -4,8 +4,9 @@
   "description": "",
   "main": "multisnake.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server/app.js"
+    "start": "node server/app.js",
+    "test": "mocha server/**/*.test.js",
+    "test-watch": "npm run test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,9 @@
   "dependencies": {
     "express": "^4.15.3",
     "socket.io": "^2.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2"
   }
 }
