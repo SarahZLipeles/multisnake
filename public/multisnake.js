@@ -17,8 +17,8 @@ const segmentSize = boxSize / numSegments;
 //----------------------------------------
 
 let direction = "x+"; // Format axis (x,y,z) direction (+, -)
-let snake = []; // Array of snake segments
-let snakes = {}; // Other players, Format socketid: snake
+let mySnake = []; // Array of snake segments
+let snakes = {}; // Other players, Format {socketid: {direction: "", snake: []}}
 
 
 // Lighting
@@ -117,17 +117,17 @@ let snakeBody, head, next, food;
 // Initializes the snake
 //-------------------------------------------------------------
 function init() {
-	if (snake.length > 0) {
+	if (mySnake.length > 0) {
 		scene.remove(food);
 		makeFood();
 	}
-	deleteSnake(snake);
+	deleteSnake(mySnake);
 	snakeBody = new THREE.Mesh(snakeGeometry, snakeMaterial);
 	scene.add(snakeBody);
 	snakeBody.position.set(0, 0, 0);
 	camera.position.set(0, 0, 0);
-	snake.push(snakeBody);
-	head = snake[0];
+	mySnake.push(snakeBody);
+	head = mySnake[0];
 	next = {
 		position: new THREE.Vector3(0, 0, 0)
 	};
@@ -135,14 +135,14 @@ function init() {
 //-------------------------------------------------------------
 
 init();
-head = snake[0];
+head = mySnake[0];
 
 //-------------------------------------------------------------
 function grow() {
 	snakeBody = new THREE.Mesh(snakeGeometry, snakeMaterial);
 	scene.add(snakeBody);
 	copyPosition(snakeBody, head);
-	snake.push(snakeBody);
+	mySnake.push(snakeBody);
 }
 //-------------------------------------------------------------
 
@@ -180,10 +180,10 @@ function checkCollisions(next) {
 		Math.abs(next.position.z) > (boxSize / 2)) {
 		init();
 	} else {
-		for (let i = 0; i < snake.length; i++) {
-			if (next.position.x === snake[i].position.x &&
-				next.position.y === snake[i].position.y &&
-				next.position.z === snake[i].position.z) {
+		for (let i = 0; i < mySnake.length; i++) {
+			if (next.position.x === mySnake[i].position.x &&
+				next.position.y === mySnake[i].position.y &&
+				next.position.z === mySnake[i].position.z) {
 				init();
 			}
 		}
@@ -261,6 +261,12 @@ function lightSnakeToSnake(lSnake) {
 }
 //--------------------------------------------------------------------------
 
+// Move Snake
+//--------------------------------------------------------------------------
+function moveSnake(snake) {
+
+}
+//--------------------------------------------------------------------------
 
 // Render Loop
 //--------------------------------------------------------------------------
@@ -272,17 +278,17 @@ function render() {
 		};
 		requestAnimationFrame(render);
 		renderer.render(scene, camera);
-		for (let c = snake.length - 1; c > 0; c--) {
-			copyPosition(snake[c], snake[c - 1]);
+		for (let i = mySnake.length - 1; i > 0; i--) {
+			copyPosition(mySnake[i], mySnake[i - 1]);
 		}
 
 		rotateFood(0.1);
 		axis = direction[0];
 		copyPosition(next, head);
 		if (direction[1] === "+") {
-			next.position[axis] = snake[0].position[axis] + segmentSize;
+			next.position[axis] = mySnake[0].position[axis] + segmentSize;
 		} else {
-			next.position[axis] = snake[0].position[axis] - segmentSize;
+			next.position[axis] = mySnake[0].position[axis] - segmentSize;
 		}
 
 		checkCollisions(next);
@@ -305,15 +311,19 @@ function render() {
 		//---------------------------------------
 
 		copyPosition(head, next);
-		socket.emit("move", snakeToLightSnake(snake));
+		socket.emit("move", snakeToLightSnake(mySnake));
 	}, 66);
 }
 //--------------------------------------------------------------------------
 
 render();
 
-socket.on("connection", (id) => {snakes[id] = [];});
-socket.on("disconnect", (id) => {deleteSnake(snakes[id]); snakes.delete(id);});
+socket.on("connected", (id) => {snakes[id] = [];});
+socket.on("dc", function (id) {
+	console.log("disconnection id", id);
+	deleteSnake(snakes[id]);
+	delete snakes[id];
+});
 
 socket.on("move", function (id, newSnake) {
 	if (!snakes[id]) {
