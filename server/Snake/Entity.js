@@ -15,4 +15,8 @@ module.exports = class Entity {
     coincides(entity) {
         return this.x === entity.x && this.y === entity.y && this.z === entity.z;
     }
+
+    clone() {
+        return Object.assign(new this.constructor, this)
+    }
 };

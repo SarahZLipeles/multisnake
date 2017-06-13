@@ -3,3 +3,6 @@ const SnakeSegment = require('./SnakeSegment')
 
 /* global describe it */
 
+describe('Snake', () => {
+
+})

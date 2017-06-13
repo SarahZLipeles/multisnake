@@ -16,12 +16,12 @@ describe('Entity', () => {
   })
 
   it('has correct property values', () => {
-    expect(testEntity).to.include({ x: position[0], y: position[1], z: position[2] })
+    expect(testEntity).to.deep.equal({ x: position[0], y: position[1], z: position[2] })
   })
 
   it('has default property values of 0', () => {
     const newEntity = new Entity()
-    expect(newEntity).to.include({ x: 0, y: 0, z: 0 })
+    expect(newEntity).to.deep.equal({ x: 0, y: 0, z: 0 })
   })
 
   it('copies position of another entity', () => {
@@ -37,5 +37,10 @@ describe('Entity', () => {
     const coincideEntity = new Entity(...position)
     expect(testEntity.coincides(nonCoincideEntity)).to.equal(false)
     expect(testEntity.coincides(coincideEntity)).to.equal(true)
+  })
+
+  it('clones a new entity', () => {
+    const clonedEntity = testEntity.clone()
+    expect(clonedEntity).to.deep.equal({ x: position[0], y: position[1], z: position[2] })
   })
 })

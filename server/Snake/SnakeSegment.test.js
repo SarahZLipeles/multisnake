@@ -13,7 +13,7 @@ describe('SnakeSegment', () => {
   let testSegment
 
   beforeEach('create a new snake segment', () => {
-    testSegment = new SnakeSegment(...position)
+    testSegment = new SnakeSegment(...position, 'next test')
   })
 
   it('has x, y, z, and next properties', () => {
@@ -24,8 +24,13 @@ describe('SnakeSegment', () => {
     expect(testSegment).to.include({ x: position[0], y: position[1], z: position[2] })
   })
 
-  it('has default property values of 0', () => {
+  it('has default property values of 0 and null next value', () => {
     const newSnakeSegment = new SnakeSegment()
-    expect(newSnakeSegment).to.include({ x: 0, y: 0, z: 0 })
+    expect(newSnakeSegment).to.deep.equal({ x: 0, y: 0, z: 0, next: null })
+  })
+
+  it('clones a new snake segment', () => {
+    const clonedEntity = testSegment.clone()
+    expect(clonedEntity).to.deep.equal({ x: position[0], y: position[1], z: position[2], next: 'next test' })
   })
 })

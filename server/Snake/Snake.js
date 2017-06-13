@@ -1,7 +1,7 @@
 const Entity = require('./Entity');
 const SnakeSegment = require('./SnakeSegment');
 
-class Snake {
+module.exports = class Snake {
     constructor(id, length = 1, direction = 'x+') {
         this.id = id;
         this.length = length;
@@ -23,8 +23,7 @@ class Snake {
 
     grow() {
         const newSnakeSegment = new SnakeSegment(this.head.x, this.head.y, this.head.z)
-        newSnakeSegment.next = this.head.next
-        this.head.next = newSnakeSegment
+        newSnakeSegment.next = this.head
+        this.head = newSnakeSegment
     }
 }
-
