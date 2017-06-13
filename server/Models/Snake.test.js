@@ -8,15 +8,15 @@ const Entity = require("./Entity");
 describe("Snake", () => {
   let snake;
   beforeEach("creates a new snake", () => {
-    snake = new Snake(1);
+    snake = new Snake();
   });
 
   it("has id, length, direction, and head properties", () => {
-    expect(snake).to.have.keys("id", "length", "direction", "head", "tail");
+    expect(snake).to.have.keys("length", "direction", "head", "tail");
   });
 
   it("has correct default values", () => {
-    expect(snake).to.deep.equals({ id: 1, length: 1, direction: { axis: "x", isNeg: false }, head: new SnakeSegment(), tail: new SnakeSegment() });
+    expect(snake).to.deep.equals({ length: 1, direction: { axis: "x", isNeg: false }, head: new SnakeSegment(), tail: new SnakeSegment() });
   });
 
   it("grows properly", () => {

@@ -1,8 +1,7 @@
 const SnakeSegment = require("./SnakeSegment");
 
 module.exports = class Snake {
-    constructor(id, direction = "x+") {
-        this.id = id;
+    constructor(direction = "x+") {
         this.length = 1;
         this.direction = {
             axis: direction[0],
