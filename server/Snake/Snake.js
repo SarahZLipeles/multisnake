@@ -1,29 +1,39 @@
-const Entity = require('./Entity');
-const SnakeSegment = require('./SnakeSegment');
+const Entity = require("./Entity");
+const SnakeSegment = require("./SnakeSegment");
 
 module.exports = class Snake {
-    constructor(id, length = 1, direction = 'x+') {
+    constructor(id, direction = "x+") {
         this.id = id;
-        this.length = length;
+        this.length = 1;
         this.direction = {
             axis: direction[0],
-            isPos: direction[1] === '+'
+            isNeg: direction[1] === "-"
         };
         this.head = new SnakeSegment();
     }
 
     move() {
-        let currSegment = this.head;
-        const tmpCoords = new Entity();
-        while (currSegment.next) {
-            tmpCoords.copyPosition(currSegment);
-            currSegment = currSegment.next.copyPosition(tmpCoords);
+        const oldTemp = new Entity().copyPosition(this.head);
+        const newTemp = new Entity().copyPosition(this.head.next);
+        let currSegment = this.head.next;
+        while (currSegment) {
+            currSegment.copyPosition(oldTemp);
+            oldTemp.copyPosition(newTemp);
+            newTemp.copyPosition(currSegment.next);
+            currSegment = currSegment.next;
         }
+        this.head[this.direction.axis] += Math.pow(-1, this.direction.isNeg);
     }
 
     grow() {
-        const newSnakeSegment = new SnakeSegment(this.head.x, this.head.y, this.head.z)
-        newSnakeSegment.next = this.head
-        this.head = newSnakeSegment
+        this.length++;
+        this.head = this.head.clone({ next: this.head });
     }
-}
+
+    turn(direction) {
+        this.direction = {
+            axis: direction[0],
+            isNeg: direction[1] === "-"
+        };
+    }
+};
