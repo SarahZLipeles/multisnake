@@ -9,28 +9,28 @@ describe("Food", () => {
     expect(new Food()).to.be.instanceOf(Entity);
   });
 
-  const position = [5, 10, 15];
+  const range = 45;
   let testFood;
 
   beforeEach("create a new food", () => {
-    testFood = new Food(...position, 256);
+    testFood = new Food(range, 256);
   });
 
   it("has x, y, z, and value properties", () => {
     expect(testFood).to.have.keys("x", "y", "z", "value");
   });
 
-  it("has correct property values", () => {
-    expect(testFood).to.include({ x: position[0], y: position[1], z: position[2], value: 256 });
+  it("has x, y, and z values within range", () => {
+    for (var i = 0; i < 10; i++) {
+      const randFood = new Food(range);
+      expect(Math.abs(randFood.x) <= range).to.equal(true);
+      expect(Math.abs(randFood.y) <= range).to.equal(true);
+      expect(Math.abs(randFood.z) <= range).to.equal(true);
+    }
   });
 
-  it("has default property values of 0 and null next value", () => {
-    const newFood = new Food();
-    expect(newFood).to.deep.equal({ x: 0, y: 0, z: 0, value: 1 });
+  it("has correct property value", () => {
+    expect(testFood).to.include({ value: 256 });
   });
 
-  it("clones a new food", () => {
-    const clonedEntity = testFood.clone();
-    expect(clonedEntity).to.deep.equal({ x: position[0], y: position[1], z: position[2], value: 256});
-  });
 });
