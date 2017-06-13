@@ -1,4 +1,3 @@
-const Entity = require("./Entity");
 const SnakeSegment = require("./SnakeSegment");
 
 module.exports = class Snake {
