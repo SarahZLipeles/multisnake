@@ -10,17 +10,14 @@ module.exports = class Snake {
             isNeg: direction[1] === "-"
         };
         this.head = new SnakeSegment();
+        this.tail = this.head;
     }
 
     move() {
-        const oldTemp = new Entity().copyPosition(this.head);
-        const newTemp = new Entity().copyPosition(this.head.next);
-        let currSegment = this.head.next;
-        while (currSegment) {
-            currSegment.copyPosition(oldTemp);
-            oldTemp.copyPosition(newTemp);
-            newTemp.copyPosition(currSegment.next);
-            currSegment = currSegment.next;
+        let currSegment = this.tail;
+        while (currSegment.prev) {
+            currSegment.copyPosition(currSegment.prev);
+            currSegment = currSegment.prev;
         }
         this.head[this.direction.axis] += Math.pow(-1, this.direction.isNeg);
     }
@@ -28,6 +25,7 @@ module.exports = class Snake {
     grow() {
         this.length++;
         this.head = this.head.clone({ next: this.head });
+        this.head.next.prev = this.head;
     }
 
     turn(direction) {

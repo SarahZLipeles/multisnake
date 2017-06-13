@@ -12,11 +12,11 @@ describe("Snake", () => {
   });
 
   it("has id, length, direction, and head properties", () => {
-    expect(snake).to.have.keys("id", "length", "direction", "head");
+    expect(snake).to.have.keys("id", "length", "direction", "head", "tail");
   });
 
   it("has correct default values", () => {
-    expect(snake).to.deep.equals({ id: 1, length: 1, direction: { axis: "x", isNeg: false }, head: new SnakeSegment() });
+    expect(snake).to.deep.equals({ id: 1, length: 1, direction: { axis: "x", isNeg: false }, head: new SnakeSegment(), tail: new SnakeSegment() });
   });
 
   it("grows properly", () => {
