@@ -46,9 +46,6 @@ for (let i = 0; i < lights.length; i++) {
 const snakeGeometry = new THREE.BoxGeometry(
 	segmentSize, segmentSize, segmentSize
 );
-const playAreaGeometry = new THREE.BoxGeometry(
-	boxSize, boxSize, boxSize, numSegments, numSegments, numSegments
-);
 const foodGeometry = new THREE.OctahedronGeometry(segmentSize);
 const wallGeometry = new THREE.PlaneGeometry(boxSize, boxSize, segmentSize, segmentSize);
 //--------------------------------------------------------------------------
@@ -131,6 +128,7 @@ function init() {
 	next = {
 		position: new THREE.Vector3(0, 0, 0)
 	};
+	socket.emit("init");
 }
 //-------------------------------------------------------------
 
@@ -143,6 +141,7 @@ function grow() {
 	scene.add(snakeBody);
 	copyPosition(snakeBody, head);
 	mySnake.push(snakeBody);
+	socket.emit("grow");
 }
 //-------------------------------------------------------------
 
@@ -174,7 +173,7 @@ makeFood();
 
 // Collision checker
 //--------------------------------------------------------------------------
-function checkCollisions(next) {
+function checkCollisions() {
 	if (Math.abs(next.position.x) > (boxSize / 2) ||
 		Math.abs(next.position.y) > (boxSize / 2) ||
 		Math.abs(next.position.z) > (boxSize / 2)) {
@@ -283,7 +282,7 @@ function render() {
 		}
 
 		rotateFood(0.1);
-		axis = direction[0];
+		const axis = direction[0];
 		copyPosition(next, head);
 		if (direction[1] === "+") {
 			next.position[axis] = mySnake[0].position[axis] + segmentSize;
@@ -291,7 +290,7 @@ function render() {
 			next.position[axis] = mySnake[0].position[axis] - segmentSize;
 		}
 
-		checkCollisions(next);
+		checkCollisions();
 		// External Cam
 		//---------------------------------------
 		copyPosition(camera, next);
@@ -318,7 +317,7 @@ function render() {
 
 render();
 
-socket.on("connected", (id) => {snakes[id] = [];});
+socket.on("connected", (id) => { snakes[id] = []; });
 socket.on("dc", function (id) {
 	console.log("disconnection id", id);
 	deleteSnake(snakes[id]);
@@ -337,11 +336,12 @@ socket.on("move", function (id, newSnake) {
 //--------------------------------------------------------------------------
 document.addEventListener("keydown", function (event) {
 	const key = event.which;
-	if (key == "37" && direction !== "x+") direction = "x-";
-	else if (key == "38" && direction !== "z+") direction = "z-";
-	else if (key == "39" && direction !== "x-") direction = "x+";
-	else if (key == "40" && direction !== "z-") direction = "z+";
-	else if (key == "87" && direction !== "y-") direction = "y+";
-	else if (key == "83" && direction !== "y+") direction = "y-";
+	if (key === 37 && direction !== "x+") direction = "x-";
+	else if (key === 38 && direction !== "z+") direction = "z-";
+	else if (key === 39 && direction !== "x-") direction = "x+";
+	else if (key === 40 && direction !== "z-") direction = "z+";
+	else if (key === 87 && direction !== "y-") direction = "y+";
+	else if (key === 83 && direction !== "y+") direction = "y-";
+	socket.emit("turn", direction);
 });
 //--------------------------------------------------------------------------

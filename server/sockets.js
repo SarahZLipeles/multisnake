@@ -1,15 +1,32 @@
-const socketFunction = function (io) {
-  io.on("connection", function (socket) {
+const Snake = require("./Models/Snake");
+const snakes = {};
+
+const socketFunction = io => {
+  io.on("connection", socket => {
     console.log("got a connection", socket.id);
-
     socket.broadcast.emit("connected", socket.id);
+    snakes[socket.id] = new Snake(socket.id);
 
-    socket.on("disconnect", function () {
-      socket.broadcast.emit("dc", socket.id);
+    socket.on("init", () => {
+      snakes[socket.id] = new Snake(socket.id);
     });
 
-    socket.on("move", function (snake) {
+    socket.on("disconnect", () => {
+      socket.broadcast.emit("dc", socket.id);
+      delete snakes[socket.id];
+    });
+
+    socket.on("grow", () => {
+      snakes[socket.id].grow();
+    });
+
+    socket.on("move", snake => {
+      snakes[socket.id].move();
       socket.broadcast.emit("move", socket.id, snake);
+    });
+
+    socket.on("turn", direction => {
+      snakes[socket.id].turn(direction);
     });
   });
 };
