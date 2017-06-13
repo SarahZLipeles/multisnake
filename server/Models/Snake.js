@@ -32,4 +32,19 @@ module.exports = class Snake {
             isNeg: direction[1] === "-"
         };
     }
+
+    die() {
+        this.head.next = null;
+        this.tail = this.head;
+        this.length = 1;
+    }
+
+    collides(entity) {
+        let currSegment = this.head;
+        while (currSegment) {
+            if (entity.coincides(currSegment)) return true;
+            currSegment = currSegment.next;
+        }
+        return false;
+    }
 };

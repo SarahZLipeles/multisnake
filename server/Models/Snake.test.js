@@ -71,4 +71,22 @@ describe("Snake", () => {
     expect(snake.head.next.coincides(segmentTwo)).to.be.equal(true);
     expect(snake.head.next.next.coincides(segmentThree)).to.be.equal(true);
   });
+
+  it("dies completely", () => {
+    snake.grow();
+    snake.grow();
+    snake.die();
+    expect(snake.length).to.be.equal(1);
+    expect(snake.head.next).to.be.equal(null);
+    expect(snake.head.prev).to.be.equal(null);
+    expect(snake.head).to.be.equal(snake.tail);
+  });
+
+  it("checks collision properly", () => {
+    snake.grow();
+    snake.move();
+    expect(snake.collides(new Entity(0, 0, 0))).to.be.equal(true);
+    expect(snake.collides(new Entity(1, 0, 0))).to.be.equal(true);
+    expect(snake.collides(new Entity(2, 0, 0))).to.be.equal(false);
+  });
 });
