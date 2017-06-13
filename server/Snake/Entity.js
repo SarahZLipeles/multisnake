@@ -6,6 +6,7 @@ module.exports = class Entity {
     }
 
     copyPosition(entity) {
+        if (!entity) return undefined;
         this.x = entity.x;
         this.y = entity.y;
         this.z = entity.z;
@@ -14,5 +15,10 @@ module.exports = class Entity {
 
     coincides(entity) {
         return this.x === entity.x && this.y === entity.y && this.z === entity.z;
+    }
+
+    // clones the entity and optionally overwrites properties if an object is passed
+    clone(obj) {
+        return Object.assign(new this.constructor, this, obj);
     }
 };
