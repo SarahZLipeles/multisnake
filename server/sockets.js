@@ -3,7 +3,6 @@ const snakes = {};
 
 const socketFunction = io => {
   io.on("connection", socket => {
-    console.log("got a connection", socket.id);
     socket.broadcast.emit("connected", socket.id);
     snakes[socket.id] = new Snake(socket.id);
 
