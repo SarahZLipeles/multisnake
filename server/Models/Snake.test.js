@@ -63,6 +63,7 @@ describe("Snake", () => {
     snake.grow(); // 100 100 000
     snake.move(); // 200 100 100
     snake.turn("z-");
+    snake.turn("");
     snake.move(); // 20-1 200 100
     snake.move(); // 20-2 20-1 200
     snake.move(); // 20-3 20-2 20-1

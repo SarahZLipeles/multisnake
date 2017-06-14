@@ -27,10 +27,12 @@ module.exports = class Snake {
     }
 
     turn(direction) {
-        this.direction = {
-            axis: direction[0],
-            isNeg: direction[1] === "-"
-        };
+        if (direction) {
+            this.direction = {
+                axis: direction[0],
+                isNeg: direction[1] === "-"
+            };
+        }
     }
 
     die() {
