@@ -3,14 +3,15 @@ const Game = require("./Game.js");
 
 const game = new Game();
 
+const minimumTimeBetweenTicks = 66;
+
 const socketFunction = io => {
+  let ticker = new Date();
   io.on("connection", socket => {
     console.log("got a connection", socket.id);
     socket.broadcast.emit("connected", socket.id);
 
-    socket.on("init", () => {
-      game.playerJoin(socket.id);
-    });
+    game.playerJoin(socket.id);
 
     socket.on("disconnect", () => {
       socket.broadcast.emit("dc", socket.id);
@@ -22,7 +23,12 @@ const socketFunction = io => {
       game.playerMoves[socket.id].ready = true;
       if (game.ready()) {
         game.tick();
-        io.sockets.emit("state", game.state());
+        let timeSinceLastTick = (new Date()) - ticker;
+        setTimeout(() => {
+          ticker = new Date();
+          io.sockets.emit("state", game.state());
+        }, (((timeSinceLastTick >= 0) ? (minimumTimeBetweenTicks - timeSinceLastTick) : (0))));
+
       }
     });
   });
