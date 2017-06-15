@@ -17,15 +17,27 @@ module.exports = class Game {
     playerJoin(playerId) {
         this.snakes[playerId] = new Snake();
         this.players.push(playerId);
-        this.playerMoves[playerId] = [];
+        this.playerMoves[playerId] = {move: "", ready: false};
         if (this.players.length > (2 * this.foods.length)) {
-            this.foods.push(new Food(this.safeRange, 3));
+            this.foods.push(new Food(this.safeRange, 1));
         }
     }
 
     playerLeave(playerId) {
         delete this.snakes[playerId];
+        delete this.playerMoves[playerId];
         this.players.splice(this.players.indexOf(playerId), 1);
+    }
+
+    ready() {
+        for (var i = 0; i < this.players.length; i++) {
+            if (!this.playerMoves[this.players[i]].ready) return false;
+        }
+        return true;
+    }
+
+    state() {
+        return {snakes: this.snakes, foods: this.foods};
     }
 
     /* Time complexity assuming the following:
@@ -40,7 +52,7 @@ module.exports = class Game {
         for (let i = 0; i < this.players.length; i++) {
             currPlayerId = this.players[i];
             currSnake = this.snakes[currPlayerId];
-            currSnake.turn(this.playerMoves[currPlayerId].unshift());
+            currSnake.turn(this.playerMoves[currPlayerId].move);
             currSnake.move();
 
             // Check for food collision
@@ -51,6 +63,7 @@ module.exports = class Game {
                     for (let k = 0; k < currFood.value; k++) {
                         currSnake.grow();
                     }
+                    this.foods[j] = new Food(this.safeRange, 1);
                 }
             }
             //Check for snake collision

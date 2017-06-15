@@ -16,8 +16,9 @@ const numSegments = 100;
 const segmentSize = boxSize / numSegments;
 //----------------------------------------
 
-let direction = "x+"; // Format axis (x,y,z) direction (+, -)
-let mySnake = []; // Array of snake segments
+let direction = "z-"; // Format axis (x,y,z) direction (+, -)
+let mySnake; // Array of snake segments
+let foods = [];
 let snakes = {}; // Other players, Format {socketid: {direction: "", snake: []}}
 
 
@@ -80,7 +81,7 @@ const yPosWallMaterial = new THREE.MeshPhongMaterial({
 });
 //--------------------------------------------------------------------------
 
-
+camera.position.set(0, 10, 10);
 // Play area cube creation
 //--------------------------------------------------------------------------
 const zNegWall = new THREE.Mesh(wallGeometry, zNegWallMaterial);
@@ -109,228 +110,82 @@ yPosWall.rotation.x = (Math.PI / 2);
 //--------------------------------------------------------------------------
 
 
-let snakeBody, head, next, food;
-
-// Initializes the snake
-//-------------------------------------------------------------
-function init() {
-	if (mySnake.length > 0) {
-		scene.remove(food);
-		makeFood();
-	}
-	deleteSnake(mySnake);
-	snakeBody = new THREE.Mesh(snakeGeometry, snakeMaterial);
-	scene.add(snakeBody);
-	snakeBody.position.set(0, 0, 0);
-	camera.position.set(0, 0, 0);
-	mySnake.push(snakeBody);
-	head = mySnake[0];
-	next = {
-		position: new THREE.Vector3(0, 0, 0)
-	};
-	socket.emit("init");
-}
-//-------------------------------------------------------------
-
-init();
-head = mySnake[0];
-
-//-------------------------------------------------------------
-function grow() {
-	snakeBody = new THREE.Mesh(snakeGeometry, snakeMaterial);
-	scene.add(snakeBody);
-	copyPosition(snakeBody, head);
-	mySnake.push(snakeBody);
-	socket.emit("grow");
-}
-//-------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-function copyPosition(originCube, destinationCube) { // copies destination cube's location onto origin cube
-	originCube.position.x = destinationCube.position.x;
-	originCube.position.y = destinationCube.position.y;
-	originCube.position.z = destinationCube.position.z;
-}
-//--------------------------------------------------------------------------
-
-
-let grid;
-
-//--------------------------------------------------------------------------
-function makeFood() {
-	food = new THREE.Mesh(foodGeometry, foodMaterial);
-	scene.add(food);
-	food.position.set((Math.floor(Math.random() * boxSize) - boxSize / 2), (Math.floor(Math.random() * boxSize) - boxSize / 2), (Math.floor(Math.random() * boxSize) - boxSize / 2));
-}
-//--------------------------------------------------------------------------
-
-function rotateFood(speed) {
-	food.rotation.y -= speed;
-}
-
-
-makeFood();
-
-// Collision checker
-//--------------------------------------------------------------------------
-function checkCollisions() {
-	if (Math.abs(next.position.x) > (boxSize / 2) ||
-		Math.abs(next.position.y) > (boxSize / 2) ||
-		Math.abs(next.position.z) > (boxSize / 2)) {
-		init();
-	} else {
-		for (let i = 0; i < mySnake.length; i++) {
-			if (next.position.x === mySnake[i].position.x &&
-				next.position.y === mySnake[i].position.y &&
-				next.position.z === mySnake[i].position.z) {
-				init();
-			}
-		}
-		if (next.position.x === food.position.x &&
-			next.position.y === food.position.y &&
-			next.position.z === food.position.z) {
-			grow();
-			grow();
-			grow();
-			scene.remove(food);
-			scene.remove(grid);
-			makeFood();
-		}
-	}
-	for (let key in snakes) {
-		for (let i = 0; i < snakes[key].length; i++) {
-			if (next.position.x === snakes[key][i].position.x &&
-				next.position.y === snakes[key][i].position.y &&
-				next.position.z === snakes[key][i].position.z) {
-				init();
-			}
-		}
-	}
-}
-//--------------------------------------------------------------------------
-
-// Delete Snake
-//--------------------------------------------------------------------------
-function deleteSnake(oldSnake) {
-	while (oldSnake.length > 0) {
-		scene.remove(oldSnake.pop());
-	}
-}
-//--------------------------------------------------------------------------
-
-// Snake updater
-//--------------------------------------------------------------------------
-function updateSnake(id, newSnake) {
-	deleteSnake(snakes[id]);
-	snakes[id] = newSnake;
-	for (var i = 0; i < newSnake.length; i++) {
-		scene.add(newSnake[i]);
-	}
-}
-//--------------------------------------------------------------------------
-
-// Snake to light snake
-//--------------------------------------------------------------------------
-function snakeToLightSnake(snake) {
-	const lSnake = [];
-	for (var i = 0; i < snake.length; i++) {
-		var snakeSeg = snake[i];
-		lSnake[i] = {};
-		lSnake[i].x = snakeSeg.position.x;
-		lSnake[i].y = snakeSeg.position.y;
-		lSnake[i].z = snakeSeg.position.z;
-
-	}
-	return lSnake;
-}
-//--------------------------------------------------------------------------
-
-// Light snake to snake
-//--------------------------------------------------------------------------
-function lightSnakeToSnake(lSnake) {
-	const retSnake = [];
-	for (var i = 0; i < lSnake.length; i++) {
-		var snakeSeg = lSnake[i];
-		retSnake[i] = new THREE.Mesh(snakeGeometry, snakeMaterial);
-		retSnake[i].position.x = snakeSeg.x;
-		retSnake[i].position.y = snakeSeg.y;
-		retSnake[i].position.z = snakeSeg.z;
-	}
-	return retSnake;
-}
-//--------------------------------------------------------------------------
-
-// Move Snake
-//--------------------------------------------------------------------------
-function moveSnake(snake) {
-
-}
-//--------------------------------------------------------------------------
-
 // Render Loop
 //--------------------------------------------------------------------------
 function render() {
-	setTimeout(function () {
-
-		next = {
-			position: new THREE.Vector3(0, 0, 0)
-		};
-		requestAnimationFrame(render);
-		renderer.render(scene, camera);
-		for (let i = mySnake.length - 1; i > 0; i--) {
-			copyPosition(mySnake[i], mySnake[i - 1]);
-		}
-
-		rotateFood(0.1);
-		const axis = direction[0];
-		copyPosition(next, head);
-		if (direction[1] === "+") {
-			next.position[axis] = mySnake[0].position[axis] + segmentSize;
-		} else {
-			next.position[axis] = mySnake[0].position[axis] - segmentSize;
-		}
-
-		checkCollisions();
-		// External Cam
-		//---------------------------------------
-		copyPosition(camera, next);
-		camera.position.z += segmentSize * 15;
-		camera.position.x -= segmentSize * 10;
-		camera.position.y += segmentSize * 10;
-		camera.lookAt(next.position);
-		//---------------------------------------
-		// Snake Cam
-		//---------------------------------------
-		// camera.lookAt(next.position);
-		// copyPosition(camera, next);
-		//---------------------------------------
-		// Steady Cam
-		//---------------------------------------
-		// camera.lookAt(next.position);
-		//---------------------------------------
-
-		copyPosition(head, next);
-		socket.emit("move", snakeToLightSnake(mySnake));
-	}, 66);
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
 }
 //--------------------------------------------------------------------------
 
+
+//--------------------------------------------------------------------------
+function drawSnake(snake, id) {
+	let currSegment = snake.head;
+	let currMesh;
+	snake.body = [];
+	while (currSegment) {
+		currMesh = new THREE.Mesh(snakeGeometry, snakeMaterial);
+		snake.body.push(currMesh);
+		currMesh.position.set(currSegment.x * segmentSize, currSegment.y * segmentSize, currSegment.z * segmentSize);
+		scene.add(currMesh);
+		currSegment = currSegment.next;
+	}
+	return snake;
+}
+function deleteSnake(snake) {
+	for (var i = 0; i < snake.body.length; i++) {
+		scene.remove(snake.body[i]);
+	}
+	snake.body.length = 0;
+}
+//--------------------------------------------------------------------------
+
+
+function setSnakes(newSnakes) {
+	for (let id in newSnakes) {
+		if (typeof id === "string") {
+			if (snakes[id]) deleteSnake(snakes[id]);
+			snakes[id] = drawSnake(newSnakes[id]);
+		}
+	}
+}
+
+function setFoods(newFoods) {
+	let food;
+	for (let i = 0; i < foods.length; i++) {
+		scene.remove(foods[i]);
+	}
+	foods.length = 0;
+	for (let i = 0; i < newFoods.length; i++) {
+		food = new THREE.Mesh(foodGeometry, foodMaterial);
+		foods.push(food);
+		food.position.set(newFoods[i].x * segmentSize, newFoods[i].y * segmentSize, newFoods[i].z * segmentSize);
+		scene.add(food);
+	}
+}
+
+
+socket.emit("tick", direction);
 render();
 
+// Sockets
+//--------------------------------------------------------------------------
 socket.on("connected", (id) => { snakes[id] = []; });
 socket.on("dc", function (id) {
 	console.log("disconnection id", id);
-	deleteSnake(snakes[id]);
-	delete snakes[id];
 });
+socket.on("state", function(state) {
+	setSnakes(state.snakes);
+	setFoods(state.foods);
+	camera.position.x = snakes[socket.id].body[0].position.x - segmentSize * 10;
+	camera.position.y = snakes[socket.id].body[0].position.y + segmentSize * 10;
+	camera.position.z = snakes[socket.id].body[0].position.z + segmentSize * 15;
+	camera.lookAt(snakes[socket.id].body[0].position);
+	socket.emit("tick", direction);
 
-socket.on("move", function (id, newSnake) {
-	if (!snakes[id]) {
-		snakes[id] = [];
-	}
-	updateSnake(id, lightSnakeToSnake(newSnake));
 });
-
+//--------------------------------------------------------------------------
 
 // Directional Key Listeners
 //--------------------------------------------------------------------------
@@ -342,6 +197,5 @@ document.addEventListener("keydown", function (event) {
 	else if (key === 40 && direction !== "z-") direction = "z+";
 	else if (key === 87 && direction !== "y-") direction = "y+";
 	else if (key === 83 && direction !== "y+") direction = "y-";
-	socket.emit("turn", direction);
 });
 //--------------------------------------------------------------------------
