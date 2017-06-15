@@ -31,7 +31,7 @@ module.exports = class Game {
 
     ready() {
         for (var i = 0; i < this.players.length; i++) {
-            if (!this.playerMoves(this.players[i]).ready) return false;
+            if (!this.playerMoves[this.players[i]].ready) return false;
         }
         return true;
     }
