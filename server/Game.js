@@ -19,7 +19,7 @@ module.exports = class Game {
         this.players.push(playerId);
         this.playerMoves[playerId] = {move: "", ready: false};
         if (this.players.length > (2 * this.foods.length)) {
-            this.foods.push(new Food(this.safeRange, 3));
+            this.foods.push(new Food(this.safeRange, 1));
         }
     }
 
@@ -63,6 +63,7 @@ module.exports = class Game {
                     for (let k = 0; k < currFood.value; k++) {
                         currSnake.grow();
                     }
+                    this.foods[j] = new Food(this.safeRange, 1);
                 }
             }
             //Check for snake collision
