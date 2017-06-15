@@ -22,8 +22,8 @@ module.exports = class Snake {
 
     grow() {
         this.length++;
-        this.head = this.head.clone({ next: this.head });
-        this.head.next.prev = this.head;
+        this.tail = this.tail.clone({ prev: this.tail });
+        this.tail.prev.next = this.tail;
     }
 
     turn(direction) {
