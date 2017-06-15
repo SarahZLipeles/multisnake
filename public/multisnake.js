@@ -120,19 +120,18 @@ function render() {
 
 
 //--------------------------------------------------------------------------
-function drawSnake(snake, id) {
-	let currSegment = snake.head;
+function drawSnake(snake) {
 	let currMesh;
 	snake.body = [];
-	while (currSegment) {
+	for (let i = 0; i < snake.length; i++) {
 		currMesh = new THREE.Mesh(snakeGeometry, snakeMaterial);
 		snake.body.push(currMesh);
-		currMesh.position.set(currSegment.x * segmentSize, currSegment.y * segmentSize, currSegment.z * segmentSize);
+		currMesh.position.set(snake[i].x * segmentSize, snake[i].y * segmentSize, snake[i].z * segmentSize);
 		scene.add(currMesh);
-		currSegment = currSegment.next;
 	}
 	return snake;
 }
+
 function deleteSnake(snake) {
 	for (var i = 0; i < snake.body.length; i++) {
 		scene.remove(snake.body[i]);
@@ -144,10 +143,8 @@ function deleteSnake(snake) {
 
 function setSnakes(newSnakes) {
 	for (let id in newSnakes) {
-		if (typeof id === "string") {
-			if (snakes[id]) deleteSnake(snakes[id]);
-			snakes[id] = drawSnake(newSnakes[id]);
-		}
+		if (snakes[id]) deleteSnake(snakes[id]);
+		snakes[id] = drawSnake(newSnakes[id]);
 	}
 }
 
@@ -175,7 +172,7 @@ socket.on("connected", (id) => { snakes[id] = []; });
 socket.on("dc", function (id) {
 	console.log("disconnection id", id);
 });
-socket.on("state", function(state) {
+socket.on("state", function (state) {
 	setSnakes(state.snakes);
 	setFoods(state.foods);
 	camera.position.x = snakes[socket.id].body[0].position.x - segmentSize * 10;

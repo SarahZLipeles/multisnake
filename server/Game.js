@@ -17,7 +17,7 @@ module.exports = class Game {
     playerJoin(playerId) {
         this.snakes[playerId] = new Snake();
         this.players.push(playerId);
-        this.playerMoves[playerId] = {move: "", ready: false};
+        this.playerMoves[playerId] = { move: "", ready: false };
         if (this.players.length > (2 * this.foods.length)) {
             this.foods.push(new Food(this.safeRange, 1));
         }
@@ -37,7 +37,21 @@ module.exports = class Game {
     }
 
     state() {
-        return {snakes: this.snakes, foods: this.foods};
+        const newSnake = {};
+        let currentSegment;
+        for (const id in this.snakes) {
+            newSnake[id] = [];
+            currentSegment = this.snakes[id].head;
+            while (currentSegment) {
+                newSnake[id].push({
+                    x: currentSegment.x,
+                    y: currentSegment.y,
+                    z: currentSegment.z
+                });
+                currentSegment = currentSegment.next;
+            }
+        }
+        return { snakes: newSnake, foods: this.foods };
     }
 
     /* Time complexity assuming the following:
