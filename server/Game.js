@@ -11,7 +11,6 @@ module.exports = class Game {
         this.size = size;
         this.playArea = (this.size / 2);
         this.safeRange = Math.floor(this.playArea * 0.9);
-        this.players.length = 0;
     }
 
     playerJoin(playerId) {

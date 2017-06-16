@@ -13,8 +13,8 @@ const socketFunction = io => {
     game.playerJoin(socket.id);
 
     socket.on("disconnect", () => {
-      socket.broadcast.emit("dc", socket.id);
       game.playerLeave(socket.id);
+      socket.broadcast.emit("dc", socket.id);
     });
 
     socket.on("tick", direction => {
