@@ -42,6 +42,8 @@ module.exports = class Snake {
         this.head = new SnakeSegment(Math.floor(Math.random() * (this.range + this.range) - this.range),
         Math.floor(Math.random() * (this.range + this.range) - this.range),
         Math.floor(Math.random() * (this.range + this.range) - this.range));
+        this.tail = this.head;
+        this.length = 1;
     }
 
     collides(entity) {
@@ -51,5 +53,19 @@ module.exports = class Snake {
             currSegment = currSegment.next;
         }
         return false;
+    }
+
+    suicides() {
+        if (this.length < 5) return false;
+        let bunchedUp = true;
+        let retVal = false;
+        let currSegment = this.head.next.next.next.next;
+        while (currSegment) {
+            if (this.head.coincides(currSegment)) retVal = true;
+            currSegment = currSegment.next;
+            if (currSegment && !currSegment.coincides(currSegment.prev)) bunchedUp = false;
+
+        }
+        return !bunchedUp && retVal;
     }
 };

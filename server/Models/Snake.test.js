@@ -12,12 +12,12 @@ describe("Snake", () => {
   });
 
   it("has id, length, direction, and head properties", () => {
-    expect(snake).to.have.keys("length", "direction", "head", "tail");
+    expect(snake).to.have.keys("length", "direction", "range", "head", "tail");
   });
 
-  it("has correct default values", () => {
-    expect(snake).to.deep.equals({ length: 1, direction: { axis: "x", isNeg: false }, head: new SnakeSegment(), tail: new SnakeSegment() });
-  });
+  // it("has correct default values", () => {
+  //   expect(snake).to.deep.equals({ length: 1, direction: { axis: "x", isNeg: false }, range: 45, head: new SnakeSegment(), tail: new SnakeSegment() });
+  // });
 
   it("grows properly", () => {
     snake.grow();
@@ -90,5 +90,25 @@ describe("Snake", () => {
     expect(snake.collides(new Entity(0, 0, 0))).to.be.equal(true);
     expect(snake.collides(new Entity(1, 0, 0))).to.be.equal(true);
     expect(snake.collides(new Entity(2, 0, 0))).to.be.equal(false);
+  });
+
+  it("checks suicides properly", () => {
+    for (var i = 0; i < 5; i++) {
+      snake.grow();
+      expect(snake.suicides()).to.be.equal(false);
+    }
+    snake.move();
+    snake.turn("y-");
+    expect(snake.suicides()).to.be.equal(false);
+    snake.move();
+    snake.turn("x-");
+    expect(snake.suicides()).to.be.equal(false);
+    snake.move();
+    snake.turn("y+");
+    expect(snake.suicides()).to.be.equal(false);
+    snake.move();
+    snake.turn("x+");
+    snake.move();
+    expect(snake.suicides()).to.be.equal(true);
   });
 });
