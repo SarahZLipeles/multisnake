@@ -1,13 +1,16 @@
 const SnakeSegment = require("./SnakeSegment");
 
 module.exports = class Snake {
-    constructor(direction = "x+") {
+    constructor(direction = "x+", range = 0) {
         this.length = 1;
         this.direction = {
             axis: direction[0],
             isNeg: direction[1] === "-"
         };
-        this.head = new SnakeSegment();
+        this.range = range;
+        this.head = new SnakeSegment(Math.floor(Math.random() * (range + range) - range),
+        Math.floor(Math.random() * (range + range) - range),
+        Math.floor(Math.random() * (range + range) - range));
         this.tail = this.head;
     }
 
@@ -36,9 +39,9 @@ module.exports = class Snake {
     }
 
     die() {
-        this.head.next = null;
-        this.tail = this.head;
-        this.length = 1;
+        this.head = new SnakeSegment(Math.floor(Math.random() * (this.range + this.range) - this.range),
+        Math.floor(Math.random() * (this.range + this.range) - this.range),
+        Math.floor(Math.random() * (this.range + this.range) - this.range));
     }
 
     collides(entity) {

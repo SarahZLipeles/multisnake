@@ -15,7 +15,7 @@ module.exports = class Game {
     }
 
     playerJoin(playerId) {
-        this.snakes[playerId] = new Snake();
+        this.snakes[playerId] = new Snake("x+", this.safeRange);
         this.players.push(playerId);
         this.playerMoves[playerId] = { move: "", ready: false };
         if (this.players.length > (2 * this.foods.length)) {
@@ -68,7 +68,7 @@ module.exports = class Game {
             currSnake = this.snakes[currPlayerId];
             currSnake.turn(this.playerMoves[currPlayerId].move);
             currSnake.move();
-
+            this.playerMoves[currPlayerId].ready = false;
             // Check for food collision
             let currFood;
             for (let j = 0; j < this.foods.length; j++) {
@@ -81,11 +81,15 @@ module.exports = class Game {
                 }
             }
             //Check for snake collision
-            for (let j = 0; j < this.players.length; j++) {
-                if (this.players[j] === currPlayerId) continue;
-                if (this.snakes[this.players[j]].collides(currSnake.head)) {
-                    currSnake.die();
-                    break;
+            if (Math.abs(currSnake.head.x) > this.playArea || Math.abs(currSnake.head.y) > this.playArea || Math.abs(currSnake.head.z) > this.playArea) {
+                currSnake.die();
+            } else {
+                for (let j = 0; j < this.players.length; j++) {
+                    if (this.players[j] === currPlayerId) continue;
+                    if (this.snakes[this.players[j]].collides(currSnake.head)) {
+                        currSnake.die();
+                        break;
+                    }
                 }
             }
         }
