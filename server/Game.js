@@ -19,7 +19,7 @@ module.exports = class Game {
         this.players.push(playerId);
         this.playerMoves[playerId] = { move: "", ready: false };
         if (this.players.length > (2 * this.foods.length)) {
-            this.foods.push(new Food(this.safeRange, 1));
+            this.foods.push(new Food(this.safeRange, 3));
         }
     }
 
@@ -77,7 +77,7 @@ module.exports = class Game {
                     for (let k = 0; k < currFood.value; k++) {
                         currSnake.grow();
                     }
-                    this.foods[j] = new Food(this.safeRange, 1);
+                    this.foods[j] = new Food(this.safeRange, 3);
                 }
             }
             //Check for snake collision
@@ -85,7 +85,11 @@ module.exports = class Game {
                 currSnake.die();
             } else {
                 for (let j = 0; j < this.players.length; j++) {
-                    if (this.players[j] === currPlayerId) continue;
+                    if (this.players[j] === currPlayerId) {
+                        if (currSnake.suicides()) {
+                            currSnake.die();
+                        } else {continue;}
+                    }
                     if (this.snakes[this.players[j]].collides(currSnake.head)) {
                         currSnake.die();
                         break;
