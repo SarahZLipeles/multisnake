@@ -10,7 +10,7 @@ module.exports = app;
 // Serve static files from ../public
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-const port = 80;
+const port = process.env.PORT || 3000;
 const server = app.listen(port, function () {
   console.log("Listening on port", port);
 });
