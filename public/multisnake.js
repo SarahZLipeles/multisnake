@@ -170,6 +170,8 @@ render();
 //--------------------------------------------------------------------------
 socket.on("connected", (id) => { snakes[id] = []; });
 socket.on("dc", function (id) {
+	deleteSnake(snakes[id]);
+	delete snakes[id];
 	console.log("disconnection id", id);
 });
 socket.on("state", function (state) {
