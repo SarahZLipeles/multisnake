@@ -143,7 +143,7 @@ function deleteSnake(snake) {
 
 function setSnakes(newSnakes) {
 	for (let id in newSnakes) {
-		if (snakes[id]) deleteSnake(snakes[id]);
+		if (snakes[id] && snakes[id].body) deleteSnake(snakes[id]);
 		snakes[id] = drawSnake(newSnakes[id]);
 	}
 }
