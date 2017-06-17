@@ -1,12 +1,17 @@
 /* global THREE io */
-
+const stats = new Stats();
 const socket = io();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+
+stats.showPanel( 3 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild( stats.dom );
+const ping = stats.addPanel( new Stats.Panel( "Ping", "#ff8", "#221" ) );
 
 
 // Size constants
@@ -162,8 +167,9 @@ function setFoods(newFoods) {
 	}
 }
 
-
+let ticker = new Date();
 socket.emit("tick", direction);
+stats.begin();
 render();
 
 // Sockets
@@ -175,6 +181,9 @@ socket.on("dc", function (id) {
 	console.log("disconnection id", id);
 });
 socket.on("state", function (state) {
+	ping.update((new Date()) - ticker);
+	stats.end();
+	if (ping > 500) return socket.disconnect("lagout");
 	setSnakes(state.snakes);
 	setFoods(state.foods);
 	camera.position.x = snakes[socket.id].body[0].position.x - segmentSize * 10;
@@ -182,7 +191,8 @@ socket.on("state", function (state) {
 	camera.position.z = snakes[socket.id].body[0].position.z + segmentSize * 15;
 	camera.lookAt(snakes[socket.id].body[0].position);
 	socket.emit("tick", direction);
-
+	ticker = new Date();
+	stats.begin();
 });
 //--------------------------------------------------------------------------
 
