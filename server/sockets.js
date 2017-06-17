@@ -46,7 +46,7 @@ const socketFunction = io => {
               // game.playerLeave(socket.id);
               // socket.broadcast.emit("dc", socket.id);
 						}
-					}, 1000);
+					}, 2000);
 				}, (((timeSinceLastTick >= 0) ? (minimumTimeBetweenTicks - timeSinceLastTick) : (0))));
 
 			}
