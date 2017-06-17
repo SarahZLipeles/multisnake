@@ -12,7 +12,7 @@ document.body.appendChild(renderer.domElement);
 stats.showPanel( 3 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild( stats.dom );
 const ping = stats.addPanel( new Stats.Panel( "Ping", "#ff8", "#221" ) );
-
+const score = stats.addPanel(new Stats.Panel( "Score", "#000", "#fff" ));
 
 // Size constants
 //----------------------------------------
@@ -182,6 +182,7 @@ socket.on("dc", function (id) {
 });
 socket.on("state", function (state) {
 	ping.update((new Date()) - ticker);
+	score.update(state.snakes[socket.id].length);
 	stats.end();
 	if (ping > 500) return socket.disconnect("lagout");
 	setSnakes(state.snakes);
