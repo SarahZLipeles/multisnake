@@ -4,5 +4,5 @@ const Game = require("./Game.js");
 /* global describe it */
 
 describe("Game", () => {
-    it("creates a new game");
+	it("creates a new game");
 });

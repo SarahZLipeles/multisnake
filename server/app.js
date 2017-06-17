@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, function () {
-  console.log("Listening on port", port);
+	console.log("Listening on port", port);
 });
 
 const io = socketio(server);
