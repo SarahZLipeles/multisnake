@@ -53,22 +53,22 @@ module.exports = class Game {
 		return { snakes: newSnake, foods: this.foods };
 	}
 
-    /* Time complexity assuming the following:
-            p = number of players
-            s = longest snake length
-        O(s(p^2))
-        Note: maximum complexity is size^6 (all squares checked against eachother)
-    */
-    //--------------------------------------------------------------------------
+	/* Time complexity assuming the following:
+			p = number of players
+			s = longest snake length
+		O(s(p^2))
+		Note: maximum complexity is size^6 (all squares checked against eachother)
+	*/
+	//--------------------------------------------------------------------------
 	tick() {
-		let currPlayerId, currMove, currSnake;
+		let currPlayerId, currSnake;
 		for (let i = 0; i < this.players.length; i++) {
 			currPlayerId = this.players[i];
 			currSnake = this.snakes[currPlayerId];
 			currSnake.turn(this.playerMoves[currPlayerId].move);
 			currSnake.move();
 			this.playerMoves[currPlayerId].ready = false;
-            // Check for food collision
+			// Check for food collision
 			let currFood;
 			for (let j = 0; j < this.foods.length; j++) {
 				currFood = this.foods[j];
@@ -79,7 +79,7 @@ module.exports = class Game {
 					this.foods[j] = new Food(this.safeRange, 3);
 				}
 			}
-            //Check for snake collision
+			//Check for snake collision
 			if (Math.abs(currSnake.head.x) > this.playArea || Math.abs(currSnake.head.y) > this.playArea || Math.abs(currSnake.head.z) > this.playArea) {
 				currSnake.die();
 			} else {
@@ -97,6 +97,6 @@ module.exports = class Game {
 			}
 		}
 	}
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
 };
 
