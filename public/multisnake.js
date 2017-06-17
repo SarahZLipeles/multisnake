@@ -198,3 +198,7 @@ document.addEventListener("keydown", function (event) {
 	else if (key === 83 && direction !== "y+") direction = "y-";
 });
 //--------------------------------------------------------------------------
+
+document.addEventListener("visibilitychange", function() {
+	socket.disconnect("left page");
+});
