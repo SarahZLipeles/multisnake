@@ -4,7 +4,7 @@ const socket = io();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-let bot;
+var bot;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -191,7 +191,7 @@ socket.on("state", function (state) {
 	camera.position.y = snakes[socket.id].body[0].position.y + segmentSize * 10;
 	camera.position.z = snakes[socket.id].body[0].position.z + segmentSize * 15;
 	camera.lookAt(snakes[socket.id].body[0].position);
-	if (bot) bot(foods, direction);
+	if (bot) direction = bot(direction, foods, snakes, socket);
 	socket.emit("tick", direction);
 	ticker = new Date();
 	stats.begin();
