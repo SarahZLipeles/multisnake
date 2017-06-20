@@ -1,6 +1,7 @@
 const models = require("./Models");
 const Snake = models.Snake;
 const Food = models.Food;
+const Board = models.Board;
 
 module.exports = class Game {
 	constructor(size = 100) {
@@ -11,21 +12,30 @@ module.exports = class Game {
 		this.size = size;
 		this.playArea = (this.size / 2);
 		this.safeRange = Math.floor(this.playArea * 0.9);
+		this.board = new Board();
 	}
 
 	playerJoin(playerId) {
 		this.snakes[playerId] = new Snake("x+", this.safeRange);
+		this.board.addSnake(this.snakes[playerId]);
 		this.players.push(playerId);
 		this.playerMoves[playerId] = { move: "", ready: false };
 		if (this.players.length > (2 * this.foods.length)) {
-			this.foods.push(new Food(this.safeRange, 3));
+			const newFood = new Food(this.safeRange, 3);
+			this.foods.push(newFood);
+			this.board.addEntity(newFood, "food");
 		}
 	}
 
 	playerLeave(playerId) {
+		this.board.removeSnake(this.snakes[playerId]);
 		delete this.snakes[playerId];
 		delete this.playerMoves[playerId];
 		this.players.splice(this.players.indexOf(playerId), 1);
+		if (this.foods.length * 2 > this.players.length + 1) {
+			const removedFood = this.foods.pop();
+			this.board.removeEntity(removedFood);
+		}
 	}
 
 	ready() {
@@ -37,8 +47,9 @@ module.exports = class Game {
 
 	state() {
 		const newSnake = {};
-		let currentSegment;
-		for (const id in this.snakes) {
+		let currentSegment, id;
+		for (let i = 0; i < this.players.length; i++) {
+			id = this.players[i];
 			newSnake[id] = [];
 			currentSegment = this.snakes[id].head;
 			while (currentSegment) {
@@ -53,12 +64,6 @@ module.exports = class Game {
 		return { snakes: newSnake, foods: this.foods };
 	}
 
-	/* Time complexity assuming the following:
-			p = number of players
-			s = longest snake length
-		O(s(p^2))
-		Note: maximum complexity is size^6 (all squares checked against eachother)
-	*/
 	//--------------------------------------------------------------------------
 	tick() {
 		let currPlayerId, currSnake;
@@ -66,37 +71,36 @@ module.exports = class Game {
 			currPlayerId = this.players[i];
 			currSnake = this.snakes[currPlayerId];
 			currSnake.turn(this.playerMoves[currPlayerId].move);
+			this.board.removeSnake(currSnake);
 			currSnake.move();
-			this.playerMoves[currPlayerId].ready = false;
-			// Check for food collision
-			let currFood;
-			for (let j = 0; j < this.foods.length; j++) {
-				currFood = this.foods[j];
-				if (currSnake.head.coincides(currFood)) {
-					for (let k = 0; k < currFood.value; k++) {
-						currSnake.grow();
-					}
-					this.foods[j] = new Food(this.safeRange, 3);
-				}
-			}
-			//Check for snake collision
-			if (Math.abs(currSnake.head.x) > this.playArea || Math.abs(currSnake.head.y) > this.playArea || Math.abs(currSnake.head.z) > this.playArea) {
+
+			// check if out of bounds
+			if (Math.abs(currSnake.head.x) > this.playArea ||
+				Math.abs(currSnake.head.y) > this.playArea ||
+				Math.abs(currSnake.head.z) > this.playArea) {
 				currSnake.die();
-			} else {
-				for (let j = 0; j < this.players.length; j++) {
-					if (this.players[j] === currPlayerId) {
-						if (currSnake.suicides()) {
-							currSnake.die();
-						} else {continue;}
-					}
-					if (this.snakes[this.players[j]].collides(currSnake.head)) {
-						currSnake.die();
-						break;
-					}
-				}
 			}
+
+			// collision check
+			let check = this.board.coincides(currSnake.head) || {};
+			if (check.constructor.name === "Food") {
+				for (let k = 0; k < check.value; k++) {
+					currSnake.grow();
+				}
+				this.foods.find((food, idx) => {
+					if (food === check) {
+						this.foods[idx].die();
+						this.board.removeEntity(check);
+						this.board.addEntity(this.foods[idx]);
+					}
+				});
+			} else if (check.constructor.name === "SnakeSegment" || currSnake.suicides()) {
+				currSnake.die();
+			}
+
+			this.board.addSnake(currSnake);
+			this.playerMoves[currPlayerId].ready = false;
 		}
 	}
 	//--------------------------------------------------------------------------
 };
-
