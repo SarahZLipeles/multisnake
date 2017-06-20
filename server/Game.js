@@ -71,7 +71,7 @@ module.exports = class Game {
 			currPlayerId = this.players[i];
 			currSnake = this.snakes[currPlayerId];
 			currSnake.turn(this.playerMoves[currPlayerId].move);
-			this.board.removeSnake(currSnake);
+			this.board.removeEntity(currSnake.tail);
 			currSnake.move();
 
 			// check if out of bounds
@@ -98,7 +98,7 @@ module.exports = class Game {
 				currSnake.die();
 			}
 
-			this.board.addSnake(currSnake);
+			this.board.addEntity(currSnake.head);
 			this.playerMoves[currPlayerId].ready = false;
 		}
 	}
