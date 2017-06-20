@@ -95,6 +95,7 @@ module.exports = class Game {
 					}
 				});
 			} else if (check.constructor.name === "SnakeSegment" || currSnake.suicides()) {
+				this.board.removeSnake(currSnake);
 				currSnake.die();
 			}
 
