@@ -5,6 +5,10 @@ module.exports = class Entity {
 		this.z = z;
 	}
 
+	coordToString() {
+		return [this.x, this.y, this.z].join(",");
+	}
+
 	copyPosition(entity) {
 		if (!entity) return undefined;
 		this.x = entity.x;
