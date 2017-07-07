@@ -1,4 +1,4 @@
-/* global THREE io */
+/* global THREE io Stats */
 const stats = new Stats();
 const socket = io();
 const scene = new THREE.Scene();
