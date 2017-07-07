@@ -22,6 +22,7 @@ module.exports = class Game {
 		this.playerMoves[playerId] = { move: "", ready: false };
 		if (this.players.length > (2 * this.foods.length)) {
 			const newFood = new Food(this.safeRange, 3);
+			makeValidFood(newFood, this.board);
 			this.foods.push(newFood);
 			this.board.addEntity(newFood, "food");
 		}
@@ -64,7 +65,6 @@ module.exports = class Game {
 		return { snakes: newSnake, foods: this.foods };
 	}
 
-	//--------------------------------------------------------------------------
 	tick() {
 		let currPlayerId, currSnake;
 		for (let i = 0; i < this.players.length; i++) {
@@ -87,11 +87,12 @@ module.exports = class Game {
 				for (let k = 0; k < check.value; k++) {
 					currSnake.grow();
 				}
-				this.foods.find((food, idx) => {
+				this.foods.find((food, foodIndex) => {
 					if (food === check) {
-						this.foods[idx].die();
+						this.foods[foodIndex].die();
+						makeValidFood(this.foods[foodIndex], this.board);
 						this.board.removeEntity(check);
-						this.board.addEntity(this.foods[idx]);
+						this.board.addEntity(this.foods[foodIndex]);
 					}
 				});
 			} else if (check.constructor.name === "SnakeSegment" || currSnake.suicides()) {
@@ -103,5 +104,10 @@ module.exports = class Game {
 			this.playerMoves[currPlayerId].ready = false;
 		}
 	}
-	//--------------------------------------------------------------------------
 };
+
+function makeValidFood(food, board) {
+	while (board.coincides(food)) {
+		food.die();
+	}
+}
