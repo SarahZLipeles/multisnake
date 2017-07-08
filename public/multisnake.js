@@ -126,22 +126,23 @@ function render() {
 
 //--------------------------------------------------------------------------
 function drawSnake(snake) {
-	let currMesh;
-	snake.body = [];
+	let totalGeometry = new THREE.Geometry();
+	snake.position = {
+		x: snake[0].x * segmentSize,
+		y: snake[0].y * segmentSize,
+		z: snake[0].z * segmentSize};
 	for (let i = 0; i < snake.length; i++) {
-		currMesh = new THREE.Mesh(snakeGeometry, snakeMaterial);
-		snake.body.push(currMesh);
-		currMesh.position.set(snake[i].x * segmentSize, snake[i].y * segmentSize, snake[i].z * segmentSize);
-		scene.add(currMesh);
+		snakeGeometry.translate(snake[i].x * segmentSize, snake[i].y * segmentSize, snake[i].z * segmentSize);
+		totalGeometry.merge(snakeGeometry);
+		snakeGeometry.translate(-snake[i].x * segmentSize, -snake[i].y * segmentSize, -snake[i].z * segmentSize);
 	}
+	snake.body = new THREE.Mesh(totalGeometry, snakeMaterial);
+	scene.add(snake.body);
 	return snake;
 }
 
 function deleteSnake(snake) {
-	for (var i = 0; i < snake.body.length; i++) {
-		scene.remove(snake.body[i]);
-	}
-	snake.body.length = 0;
+	scene.remove(snake.body);
 }
 //--------------------------------------------------------------------------
 
@@ -186,10 +187,10 @@ socket.on("state", function (state) {
 	stats.end();
 	setSnakes(state.snakes);
 	setFoods(state.foods);
-	camera.position.x = snakes[socket.id].body[0].position.x - segmentSize * 10;
-	camera.position.y = snakes[socket.id].body[0].position.y + segmentSize * 10;
-	camera.position.z = snakes[socket.id].body[0].position.z + segmentSize * 15;
-	camera.lookAt(snakes[socket.id].body[0].position);
+	camera.position.x = snakes[socket.id].position.x - segmentSize * 10;
+	camera.position.y = snakes[socket.id].position.y + segmentSize * 10;
+	camera.position.z = snakes[socket.id].position.z + segmentSize * 15;
+	camera.lookAt(snakes[socket.id].position);
 	if (bot) direction = bot(direction, foods, snakes, socket);
 	socket.emit("tick", direction);
 	ticker = new Date();
