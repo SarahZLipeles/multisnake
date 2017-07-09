@@ -92,7 +92,7 @@ module.exports = class Game {
 						this.foods[foodIndex].die();
 						makeValidFood(this.foods[foodIndex], this.board);
 						this.board.removeEntity(check);
-						this.board.addEntity(this.foods[foodIndex]);
+						this.board.addEntity(this.foods[foodIndex], "food");
 					}
 				});
 			} else if (check.constructor.name === "SnakeSegment" || currSnake.suicides()) {
@@ -107,7 +107,7 @@ module.exports = class Game {
 };
 
 function makeValidFood(food, board) {
-	while (board.coincides(food)) {
+	while (board.coincides(food) && board.coincides(food) !== "food") {
 		food.die();
 	}
 }
