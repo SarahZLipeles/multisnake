@@ -108,7 +108,6 @@ module.exports = class Game {
 
 function makeValidFood(food, board) {
 	while (board.coincides(food)) {
-		console.log("refreshing food");
 		food.die();
 	}
 }
