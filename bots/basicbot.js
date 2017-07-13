@@ -1,7 +1,8 @@
 bot = function(direction, foods, snakes, socket) {
 	const mySnakeHead = snakes[socket.id].position;
 	let min = 200;
-	let currSum, mindex;
+	let currSum;
+	let mindex = 0;
 	for (let i = 0; i < foods.length; i++) {
 		currSum = Math.abs(foods[i].position.x - mySnakeHead.x) +
 			Math.abs(foods[i].position.y - mySnakeHead.y) +
