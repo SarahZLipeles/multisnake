@@ -5,12 +5,14 @@ module.exports = class Board {
 		this.table = {};
 	}
 
-	addEntity(entity, value = true) {
+	addEntity(entity) {
 		this.table[entity.coordToString()] = entity;
+		return this;
 	}
 
 	removeEntity(entity) {
 		delete this.table[entity.coordToString()];
+		return this;
 	}
 
 	addSnake(snake) {
@@ -19,6 +21,7 @@ module.exports = class Board {
 			this.addEntity(currentSegment, "snake");
 			currentSegment = currentSegment.next;
 		}
+		return this;
 	}
 
 	removeSnake(snake) {
@@ -27,6 +30,7 @@ module.exports = class Board {
 			this.removeEntity(currentSegment);
 			currentSegment = currentSegment.next;
 		}
+		return this;
 	}
 
 	coincides(entity) {
