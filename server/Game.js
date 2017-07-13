@@ -20,12 +20,7 @@ module.exports = class Game {
 		this.board.addSnake(this.snakes[playerId]);
 		this.players.push(playerId);
 		this.playerMoves[playerId] = { move: "", ready: false };
-		if (this.players.length > (2 * this.foods.length)) {
-			const newFood = new Food(this.safeRange, 3);
-			makeValidFood(newFood, this.board);
-			this.foods.push(newFood);
-			this.board.addEntity(newFood, "food");
-		}
+		if (this.players.length > (2 * this.foods.length)) this.addFood();
 	}
 
 	playerLeave(playerId) {
@@ -34,9 +29,15 @@ module.exports = class Game {
 		delete this.playerMoves[playerId];
 		this.players.splice(this.players.indexOf(playerId), 1);
 		if (this.foods.length * 2 > this.players.length + 1) {
-			const removedFood = this.foods.pop();
-			this.board.removeEntity(removedFood);
+			this.board.removeEntity(this.foods.pop());
 		}
+	}
+
+	addFood(foodValue = 3) {
+		const newFood = new Food(this.safeRange, foodValue);
+		makeValidFood(newFood, this.board);
+		this.foods.push(newFood);
+		this.board.addEntity(newFood);
 	}
 
 	ready() {
@@ -47,52 +48,36 @@ module.exports = class Game {
 	}
 
 	state() {
-		const newSnake = {};
-		let currentSegment, id;
-		for (let i = 0; i < this.players.length; i++) {
+		const snakes = {};
+		let id;
+		for (var i = 0; i < this.players.length; i++) {
 			id = this.players[i];
-			newSnake[id] = [];
-			currentSegment = this.snakes[id].head;
-			while (currentSegment) {
-				newSnake[id].push({
-					x: currentSegment.x,
-					y: currentSegment.y,
-					z: currentSegment.z
-				});
-				currentSegment = currentSegment.next;
-			}
+			snakes[id] = this.snakes[id].delink();
 		}
-		return { snakes: newSnake, foods: this.foods };
+		return { snakes, foods: this.foods };
 	}
 
 	tick() {
 		let currPlayerId, currSnake;
-		for (let i = 0; i < this.players.length; i++) {
+		for (var i = 0; i < this.players.length; i++) {
 			currPlayerId = this.players[i];
 			currSnake = this.snakes[currPlayerId];
-			currSnake.turn(this.playerMoves[currPlayerId].move);
 			this.board.removeEntity(currSnake.tail);
-			currSnake.move();
+			currSnake.turn(this.playerMoves[currPlayerId].move).move();
 
 			// check if out of bounds
-			if (Math.abs(currSnake.head.x) > this.playArea ||
-				Math.abs(currSnake.head.y) > this.playArea ||
-				Math.abs(currSnake.head.z) > this.playArea) {
-				currSnake.die();
-			}
+			if (outsidePlayArea(currSnake.head, this.playArea)) currSnake.die();
 
 			// collision check
 			let check = this.board.coincides(currSnake.head) || {};
 			if (check.constructor.name === "Food") {
-				for (let k = 0; k < check.value; k++) {
-					currSnake.grow();
-				}
+				currSnake.grow(check.value);
 				this.foods.find((food, foodIndex) => {
 					if (food === check) {
-						this.foods[foodIndex].die();
-						makeValidFood(this.foods[foodIndex], this.board);
-						this.board.removeEntity(check);
-						this.board.addEntity(this.foods[foodIndex], "food");
+						const thisFood = this.foods[foodIndex];
+						thisFood.die();
+						makeValidFood(thisFood, this.board);
+						this.board.removeEntity(check).addEntity(thisFood);
 					}
 				});
 			} else if (check.constructor.name === "SnakeSegment" || currSnake.suicides()) {
@@ -108,7 +93,12 @@ module.exports = class Game {
 
 function makeValidFood(food, board) {
 	while (board.coincides(food)) {
-		console.log("refreshing food");
 		food.die();
 	}
+}
+
+function outsidePlayArea(entity, playArea) {
+	return Math.abs(entity.x) > playArea ||
+		Math.abs(entity.y) > playArea ||
+		Math.abs(entity.z) > playArea;
 }
