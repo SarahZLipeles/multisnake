@@ -17,7 +17,7 @@ describe("Food", () => {
 	});
 
 	it("has x, y, z, and value properties", () => {
-		expect(testFood).to.have.keys("x", "y", "z", "value");
+		expect(testFood).to.have.keys("x", "y", "z", "value", "range");
 	});
 
 	it("has x, y, and z values within range", () => {
