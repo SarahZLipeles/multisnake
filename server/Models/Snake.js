@@ -21,12 +21,29 @@ module.exports = class Snake {
 			currSegment = currSegment.prev;
 		}
 		this.head[this.direction.axis] += Math.pow(-1, this.direction.isNeg);
+		return this;
 	}
 
-	grow() {
+	delink() {
+		const delinkedSnake = [];
+		let currentSegment = this.head;
+		while (currentSegment) {
+			delinkedSnake.push({
+				x: currentSegment.x,
+				y: currentSegment.y,
+				z: currentSegment.z
+			});
+			currentSegment = currentSegment.next;
+		}
+		return delinkedSnake;
+	}
+
+	grow(times = 1) {
+		if (times < 0) throw (new Error("negative growth number"));
 		this.length++;
 		this.tail = this.tail.clone({ prev: this.tail });
 		this.tail.prev.next = this.tail;
+		return times > 1 ? this.grow(times - 1) : this;
 	}
 
 	turn(direction) {
@@ -36,6 +53,7 @@ module.exports = class Snake {
 				isNeg: direction[1] === "-"
 			};
 		}
+		return this;
 	}
 
 	die() {
@@ -44,6 +62,7 @@ module.exports = class Snake {
 			Math.floor(Math.random() * (this.range + this.range) - this.range));
 		this.tail = this.head;
 		this.length = 1;
+		return this;
 	}
 
 	collides(entity) {

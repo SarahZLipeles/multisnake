@@ -15,9 +15,9 @@ describe("Snake", () => {
 		expect(snake).to.have.keys("length", "direction", "range", "head", "tail");
 	});
 
-  // it("has correct default values", () => {
-  //   expect(snake).to.deep.equals({ length: 1, direction: { axis: "x", isNeg: false }, range: 45, head: new SnakeSegment(), tail: new SnakeSegment() });
-  // });
+	// it("has correct default values", () => {
+	//   expect(snake).to.deep.equals({ length: 1, direction: { axis: "x", isNeg: false }, range: 45, head: new SnakeSegment(), tail: new SnakeSegment() });
+	// });
 
 	it("grows properly", () => {
 		snake.grow();
@@ -93,10 +93,8 @@ describe("Snake", () => {
 	});
 
 	it("checks suicides properly", () => {
-		for (var i = 0; i < 5; i++) {
-			snake.grow();
-			expect(snake.suicides()).to.be.equal(false);
-		}
+		snake.grow(5);
+		expect(snake.suicides()).to.be.equal(false);
 		snake.move();
 		snake.turn("y-");
 		expect(snake.suicides()).to.be.equal(false);
