@@ -15,12 +15,14 @@ module.exports = class Snake {
 	}
 
 	move() {
-		let currSegment = this.tail;
-		while (currSegment.prev) {
-			currSegment.copyPosition(currSegment.prev);
-			currSegment = currSegment.prev;
-		}
-		this.head[this.direction.axis] += Math.pow(-1, this.direction.isNeg);
+		this.tail.copyPosition(this.head);
+		this.tail[this.direction.axis] += Math.pow(-1, this.direction.isNeg);
+		this.tail.next = this.head;
+		this.head.prev = this.tail;
+		this.tail = this.tail.prev;
+		this.tail.next = null;
+		this.head = this.head.prev;
+		this.head.prev = null;
 		return this;
 	}
 
